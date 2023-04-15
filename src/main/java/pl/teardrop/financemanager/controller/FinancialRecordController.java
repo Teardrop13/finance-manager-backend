@@ -1,14 +1,6 @@
 package pl.teardrop.financemanager.controller;
 
-import pl.teardrop.authentication.exceptions.UserNotFoundException;
-import pl.teardrop.authentication.user.UserUtils;
-import pl.teardrop.financemanager.controller.exceptions.CategoryNotFoundException;
-import pl.teardrop.financemanager.controller.exceptions.RecordNotFoundException;
-import pl.teardrop.financemanager.dto.FinancialRecordDTO;
-import pl.teardrop.financemanager.model.FinancialRecord;
-import pl.teardrop.financemanager.service.CategoryService;
-import pl.teardrop.financemanager.service.FinancialRecordService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,14 +10,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import pl.teardrop.authentication.exceptions.UserNotFoundException;
+import pl.teardrop.authentication.user.UserUtils;
+import pl.teardrop.financemanager.controller.exceptions.CategoryNotFoundException;
+import pl.teardrop.financemanager.controller.exceptions.FinancialRecordNotFoundException;
+import pl.teardrop.financemanager.dto.FinancialRecordDTO;
+import pl.teardrop.financemanager.model.FinancialRecord;
+import pl.teardrop.financemanager.service.CategoryService;
+import pl.teardrop.financemanager.service.FinancialRecordService;
 
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/api")
 @Slf4j
-public class RecordController {
+public class FinancialRecordController {
 
 	private final FinancialRecordService recordService;
 
@@ -51,7 +51,7 @@ public class RecordController {
 				.map(category -> recordService.getByCategory(category).stream()
 						.map(FinancialRecord::toDTO)
 						.toList())
-				.orElseThrow(() -> new CategoryNotFoundException("Could not retrieve user's FinancialRecords. Category not found: " + categoryText));
+				.orElseThrow(() -> new FinancialRecordNotFoundException("Could not retrieve user's FinancialRecords. Category not found: " + categoryText));
 	}
 
 	@PostMapping("/add-record")
@@ -63,6 +63,12 @@ public class RecordController {
 									 financialRecord.setUser(user);
 									 financialRecord.setDescription(financialRecord.getDescription());
 									 financialRecord.setAmount(financialRecord.getAmount());
+									 categoryService.getByUserAndName(user, financialRecordDTO.getCategoryName()).ifPresentOrElse(
+											 category -> financialRecord.setCategory(category),
+											 () -> {
+												 throw new CategoryNotFoundException("Failed to create FinancialRecord. Category " + financialRecordDTO.getCategoryName() + " not found for user id=" + user.getId());
+											 }
+									 );
 									 recordService.save(financialRecord);
 								 },
 								 () -> {
@@ -80,7 +86,7 @@ public class RecordController {
 									 recordService.save(financialRecord);
 								 },
 								 () -> {
-									 throw new RecordNotFoundException("FinancialRecord not found.");
+									 throw new FinancialRecordNotFoundException("FinancialRecord not found.");
 								 });
 	}
 
@@ -90,7 +96,7 @@ public class RecordController {
 		recordService.getById(financialRecordDTO.getId())
 				.ifPresentOrElse(recordService::delete,
 								 () -> {
-									 throw new RecordNotFoundException("FinancialRecord not found.");
+									 throw new FinancialRecordNotFoundException("FinancialRecord not found.");
 								 });
 	}
 

@@ -40,4 +40,8 @@ public class CategoryService {
 			log.info("Category marked deleted id={}, userId={}", category.getId(), category.getUser().getId());
 		});
 	}
+
+	public Optional<Category> getByUserAndName(User user, String name) {
+		return categoryRepository.getByUserAndName(user, name);
+	}
 }

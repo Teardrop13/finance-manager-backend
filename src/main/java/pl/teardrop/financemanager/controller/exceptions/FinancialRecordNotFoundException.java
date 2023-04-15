@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
         value = HttpStatus.NOT_FOUND,
         reason = "Requested record does not exist"
 )
-public class RecordNotFoundException extends RuntimeException {
-    public RecordNotFoundException(String message) {
+public class FinancialRecordNotFoundException extends RuntimeException {
+    public FinancialRecordNotFoundException(String message) {
         super(message);
     }
 
-    public RecordNotFoundException(Throwable cause) {
+    public FinancialRecordNotFoundException(Throwable cause) {
         super(cause);
     }
 }

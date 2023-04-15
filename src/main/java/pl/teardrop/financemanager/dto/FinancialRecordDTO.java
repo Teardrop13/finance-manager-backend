@@ -16,4 +16,5 @@ public class FinancialRecordDTO {
 	private Long id;
 	private String description;
 	private BigDecimal amount;
+	private String categoryName;
 }

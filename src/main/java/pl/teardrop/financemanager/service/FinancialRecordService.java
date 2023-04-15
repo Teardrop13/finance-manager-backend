@@ -1,12 +1,13 @@
 package pl.teardrop.financemanager.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.financemanager.model.Category;
 import pl.teardrop.financemanager.model.FinancialRecord;
+import pl.teardrop.financemanager.model.Period;
 import pl.teardrop.financemanager.repository.FinancialRecordRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,10 +15,11 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FinancialRecordService {
 
-	@Autowired
-	private FinancialRecordRepository recordRepository;
+	private final FinancialRecordRepository recordRepository;
+	private final PeriodService periodService;
 
 	public List<FinancialRecord> getByUser(User user) {
 		return recordRepository.findByUserOrderByCreatedAtDesc(user);
@@ -36,6 +38,8 @@ public class FinancialRecordService {
 	}
 
 	public FinancialRecord save(FinancialRecord financialRecord) {
+		Period period = periodService.getByDate(financialRecord.getTransactionDate(), financialRecord.getUser());
+		financialRecord.setPeriod(period);
 		FinancialRecord financialRecordAdded = recordRepository.save(financialRecord);
 		log.info("Saved record id={}, userId={}", financialRecordAdded.getId(), financialRecordAdded.getUser().getId());
 		return financialRecordAdded;

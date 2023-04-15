@@ -1,8 +1,8 @@
-package io.github.teardrop13.financemanager.repositories;
+package io.github.teardrop13.financemanager.repository;
 
 import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.financemanager.domain.category.Category;
-import io.github.teardrop13.financemanager.domain.record.FinancialRecord;
+import io.github.teardrop13.financemanager.model.Category;
+import io.github.teardrop13.financemanager.model.FinancialRecord;
 import org.springframework.data.repository.Repository;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public interface RecordRepository extends Repository<FinancialRecord, Long> {
+public interface FinancialRecordRepository extends Repository<FinancialRecord, Long> {
 
 	Optional<FinancialRecord> findById(Long id);
 
@@ -22,7 +22,7 @@ public interface RecordRepository extends Repository<FinancialRecord, Long> {
 
 	List<FinancialRecord> getByCategory(Category category);
 
-	FinancialRecord save(FinancialRecord record);
+	FinancialRecord save(FinancialRecord financialRecord);
 
 	void deleteById(Long id);
 }

@@ -1,7 +1,7 @@
-package io.github.teardrop13.financemanager.domain.record;
+package io.github.teardrop13.financemanager.model;
 
 import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.financemanager.domain.category.Category;
+import io.github.teardrop13.financemanager.dto.FinancialRecordDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,11 +29,11 @@ public class FinancialRecord {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "USER_ID")
+	@JoinColumn(name = "USER_ID", nullable = false)
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "CATEGORY_ID")
+	@JoinColumn(name = "CATEGORY_ID", nullable = false)
 	private Category category;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -42,11 +43,14 @@ public class FinancialRecord {
 	@Column(name = "DESCRIPTION")
 	private String description;
 
-	@Column(name = "AMOUNT", precision = 12, scale = 4)
+	@Column(name = "AMOUNT", precision = 12, scale = 4, nullable = false)
 	private BigDecimal amount;
 
-	@Column(name = "CREATED_AT")
+	@Column(name = "CREATED_AT", nullable = false)
 	private LocalDateTime createdAt;
+
+	@Column(name = "TRANSACTION_DATE", nullable = false)
+	private LocalDate transactionDate;
 
 	public FinancialRecordDTO toDTO() {
 		return new FinancialRecordDTO(id, description, amount);

@@ -1,13 +1,13 @@
-package io.github.teardrop13.financemanager.rest;
+package io.github.teardrop13.financemanager.controller;
 
-import io.github.teardrop13.authentication.user.UserUtils;
-import io.github.teardrop13.financemanager.domain.record.FinancialRecord;
-import io.github.teardrop13.financemanager.domain.record.FinancialRecordDTO;
-import io.github.teardrop13.financemanager.rest.exceptions.CategoryNotFoundException;
-import io.github.teardrop13.financemanager.rest.exceptions.RecordNotFoundException;
 import io.github.teardrop13.authentication.exceptions.UserNotFoundException;
-import io.github.teardrop13.financemanager.services.CategoryService;
-import io.github.teardrop13.financemanager.services.RecordService;
+import io.github.teardrop13.authentication.user.UserUtils;
+import io.github.teardrop13.financemanager.controller.exceptions.CategoryNotFoundException;
+import io.github.teardrop13.financemanager.controller.exceptions.RecordNotFoundException;
+import io.github.teardrop13.financemanager.dto.FinancialRecordDTO;
+import io.github.teardrop13.financemanager.model.FinancialRecord;
+import io.github.teardrop13.financemanager.service.CategoryService;
+import io.github.teardrop13.financemanager.service.FinancialRecordService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 public class RecordController {
 
-	private final RecordService recordService;
+	private final FinancialRecordService recordService;
 
 	private final CategoryService categoryService;
 

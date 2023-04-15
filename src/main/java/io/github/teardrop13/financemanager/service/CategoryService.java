@@ -1,8 +1,8 @@
-package io.github.teardrop13.financemanager.services;
+package io.github.teardrop13.financemanager.service;
 
 import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.financemanager.domain.category.Category;
-import io.github.teardrop13.financemanager.repositories.CategoryRepository;
+import io.github.teardrop13.financemanager.model.Category;
+import io.github.teardrop13.financemanager.repository.CategoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

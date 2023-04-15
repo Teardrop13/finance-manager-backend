@@ -1,9 +1,9 @@
-package io.github.teardrop13.financemanager.services;
+package io.github.teardrop13.financemanager.service;
 
 import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.financemanager.domain.category.Category;
-import io.github.teardrop13.financemanager.domain.record.FinancialRecord;
-import io.github.teardrop13.financemanager.repositories.RecordRepository;
+import io.github.teardrop13.financemanager.model.Category;
+import io.github.teardrop13.financemanager.model.FinancialRecord;
+import io.github.teardrop13.financemanager.repository.FinancialRecordRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +14,10 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class RecordService {
+public class FinancialRecordService {
 
 	@Autowired
-	private RecordRepository recordRepository;
+	private FinancialRecordRepository recordRepository;
 
 	public List<FinancialRecord> getByUser(User user) {
 		return recordRepository.findByUserOrderByCreatedAtDesc(user);

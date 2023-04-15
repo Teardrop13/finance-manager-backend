@@ -1,4 +1,4 @@
-package io.github.teardrop13.financemanager.rest.exceptions;
+package io.github.teardrop13.financemanager.controller.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

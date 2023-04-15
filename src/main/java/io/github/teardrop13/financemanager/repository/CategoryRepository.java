@@ -1,7 +1,7 @@
-package io.github.teardrop13.financemanager.repositories;
+package io.github.teardrop13.financemanager.repository;
 
 import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.financemanager.domain.category.Category;
+import io.github.teardrop13.financemanager.model.Category;
 import org.springframework.data.repository.Repository;
 import org.springframework.stereotype.Component;
 

@@ -15,11 +15,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 })
 @EntityScan({
 		"io.github.teardrop13.authentication.user",
-		"io.github.teardrop13.financemanager.domain"
+		"io.github.teardrop13.financemanager.model"
 })
 @EnableJpaRepositories({
 		"io.github.teardrop13.authentication.user",
-		"io.github.teardrop13.financemanager.repositories"
+		"io.github.teardrop13.financemanager.repository"
 })
 public class FinanceManagerApplication {
 

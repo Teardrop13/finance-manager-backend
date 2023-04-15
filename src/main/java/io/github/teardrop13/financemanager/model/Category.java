@@ -1,6 +1,7 @@
-package io.github.teardrop13.financemanager.domain.category;
+package io.github.teardrop13.financemanager.model;
 
 import io.github.teardrop13.authentication.user.User;
+import io.github.teardrop13.financemanager.dto.CategoryDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,16 +26,16 @@ public class Category {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "USER_ID")
+	@JoinColumn(name = "USER_ID", nullable = false)
 	private User user;
 
-	@Column(name = "PRIORITY")
+	@Column(name = "PRIORITY", nullable = false)
 	private Integer priority;
 
-	@Column(name = "NAME")
+	@Column(name = "NAME", nullable = false)
 	private String name;
 
-	@Column(name = "DELETED")
+	@Column(name = "DELETED", nullable = false)
 	private boolean deleted;
 
 	public CategoryDTO toDTO() {

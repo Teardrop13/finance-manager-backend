@@ -35,6 +35,10 @@ public class FinancialRecord {
 	@JoinColumn(name = "CATEGORY_ID")
 	private Category category;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "PERIOD_ID", nullable = false)
+	private Period period;
+
 	@Column(name = "DESCRIPTION")
 	private String description;
 

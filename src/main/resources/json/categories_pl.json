@@ -1,0 +1,42 @@
+[
+  {
+    "priority": 1,
+    "name": "House",
+    "type": "expense"
+  },
+  {
+    "priority": 2,
+    "name": "Food",
+    "type": "expense"
+  },
+  {
+    "priority": 3,
+    "name": "Health",
+    "type": "expense"
+  },
+  {
+    "priority": 4,
+    "name": "Media",
+    "type": "expense"
+  },
+  {
+    "priority": 5,
+    "name": "Car",
+    "type": "expense"
+  },
+  {
+    "priority": 1,
+    "name": "Salary",
+    "type": "income"
+  },
+  {
+    "priority": 2,
+    "name": "Gift",
+    "type": "income"
+  },
+  {
+    "priority": 3,
+    "name": "Investment",
+    "type": "income"
+  }
+]

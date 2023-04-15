@@ -1,12 +1,14 @@
 package pl.teardrop.financemanager.model;
 
-import pl.teardrop.authentication.user.User;
-import pl.teardrop.financemanager.dto.FinancialRecordDTO;
 import lombok.Getter;
 import lombok.Setter;
+import pl.teardrop.authentication.user.User;
+import pl.teardrop.financemanager.dto.FinancialRecordDTO;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -52,7 +54,15 @@ public class FinancialRecord {
 	@Column(name = "TRANSACTION_DATE", nullable = false)
 	private LocalDate transactionDate;
 
+	@Column(name = "TYPE", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private FinancialRecordType type;
+
 	public FinancialRecordDTO toDTO() {
-		return new FinancialRecordDTO(id, description, amount);
+		return new FinancialRecordDTO(id,
+									  description,
+									  amount,
+									  category.getName(),
+									  type.toString());
 	}
 }

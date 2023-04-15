@@ -1,13 +1,13 @@
-package io.github.teardrop13.financemanager.controller;
+package pl.teardrop.financemanager.controller;
 
-import io.github.teardrop13.authentication.exceptions.UserNotFoundException;
-import io.github.teardrop13.authentication.user.UserUtils;
-import io.github.teardrop13.financemanager.controller.exceptions.CategoryNotFoundException;
-import io.github.teardrop13.financemanager.controller.exceptions.RecordNotFoundException;
-import io.github.teardrop13.financemanager.dto.FinancialRecordDTO;
-import io.github.teardrop13.financemanager.model.FinancialRecord;
-import io.github.teardrop13.financemanager.service.CategoryService;
-import io.github.teardrop13.financemanager.service.FinancialRecordService;
+import pl.teardrop.authentication.exceptions.UserNotFoundException;
+import pl.teardrop.authentication.user.UserUtils;
+import pl.teardrop.financemanager.controller.exceptions.CategoryNotFoundException;
+import pl.teardrop.financemanager.controller.exceptions.RecordNotFoundException;
+import pl.teardrop.financemanager.dto.FinancialRecordDTO;
+import pl.teardrop.financemanager.model.FinancialRecord;
+import pl.teardrop.financemanager.service.CategoryService;
+import pl.teardrop.financemanager.service.FinancialRecordService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

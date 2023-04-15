@@ -8,7 +8,7 @@
         <version>2.7.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>io.github.teardrop13</groupId>
+    <groupId>po.teardrop</groupId>
     <artifactId>finance-manager</artifactId>
     <version>0.1</version>
     <name>finance-manager</name>
@@ -20,7 +20,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>io.github.teardrop13</groupId>
+            <groupId>pl.teardrop</groupId>
             <artifactId>authentication</artifactId>
             <version>${authentication.version}</version>
             <scope>compile</scope>

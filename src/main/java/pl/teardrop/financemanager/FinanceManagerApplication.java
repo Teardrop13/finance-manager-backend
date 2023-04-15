@@ -1,4 +1,4 @@
-package io.github.teardrop13.financemanager;
+package pl.teardrop.financemanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,16 +10,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @ComponentScan({
-		"io.github.teardrop13.authentication",
-		"io.github.teardrop13.financemanager"
+		"pl.teardrop.authentication",
+		"pl.teardrop.financemanager"
 })
 @EntityScan({
-		"io.github.teardrop13.authentication.user",
-		"io.github.teardrop13.financemanager.model"
+		"pl.teardrop.authentication.user",
+		"pl.teardrop.financemanager.model"
 })
 @EnableJpaRepositories({
-		"io.github.teardrop13.authentication.user",
-		"io.github.teardrop13.financemanager.repository"
+		"pl.teardrop.authentication.user",
+		"pl.teardrop.financemanager.repository"
 })
 public class FinanceManagerApplication {
 

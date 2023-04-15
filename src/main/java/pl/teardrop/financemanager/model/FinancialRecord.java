@@ -1,7 +1,7 @@
-package io.github.teardrop13.financemanager.model;
+package pl.teardrop.financemanager.model;
 
-import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.financemanager.dto.FinancialRecordDTO;
+import pl.teardrop.authentication.user.User;
+import pl.teardrop.financemanager.dto.FinancialRecordDTO;
 import lombok.Getter;
 import lombok.Setter;
 

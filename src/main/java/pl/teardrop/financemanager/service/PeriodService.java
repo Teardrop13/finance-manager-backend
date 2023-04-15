@@ -1,8 +1,8 @@
-package io.github.teardrop13.financemanager.service;
+package pl.teardrop.financemanager.service;
 
-import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.financemanager.model.Period;
-import io.github.teardrop13.financemanager.repository.PeriodRepository;
+import pl.teardrop.authentication.user.User;
+import pl.teardrop.financemanager.model.Period;
+import pl.teardrop.financemanager.repository.PeriodRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

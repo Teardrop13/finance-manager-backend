@@ -1,7 +1,7 @@
-package io.github.teardrop13.financemanager.model;
+package pl.teardrop.financemanager.model;
 
-import io.github.teardrop13.authentication.user.User;
-import io.github.teardrop13.financemanager.dto.PeriodDTO;
+import pl.teardrop.authentication.user.User;
+import pl.teardrop.financemanager.dto.CategoryDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,13 +14,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "FM_PERIOD")
-public class Period {
+@Table(name = "FM_CATEGORY")
+public class Category {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,14 +29,16 @@ public class Period {
 	@JoinColumn(name = "USER_ID", nullable = false)
 	private User user;
 
-	@Column(name = "STARTS_ON", nullable = false)
-	private LocalDate startsOn;
+	@Column(name = "PRIORITY", nullable = false)
+	private Integer priority;
 
-	@Column(name = "ENDS_ON", nullable = false)
-	private LocalDate endsOn;
+	@Column(name = "NAME", nullable = false)
+	private String name;
 
-	public PeriodDTO toDTO() {
-		return new PeriodDTO(startsOn, endsOn);
+	@Column(name = "DELETED", nullable = false)
+	private boolean deleted;
+
+	public CategoryDTO toDTO() {
+		return new CategoryDTO(id, priority, name);
 	}
-
 }

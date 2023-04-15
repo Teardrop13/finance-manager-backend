@@ -1,4 +1,4 @@
-package io.github.teardrop13.financemanager.dto;
+package pl.teardrop.financemanager.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

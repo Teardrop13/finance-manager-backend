@@ -1,0 +1,4 @@
+extraClasspath=.../target/classes;.../target/classes;
+autoHotswap=true
+LOGGER=info
+autoHotswap.port=8000

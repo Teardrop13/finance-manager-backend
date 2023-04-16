@@ -1,5 +1,6 @@
 package pl.teardrop.financemanager.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,10 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CategoryService {
 
-	@Autowired
-	private CategoryRepository categoryRepository;
+	private final CategoryRepository categoryRepository;
 
 	public List<Category> getByUser(User user) {
 		return categoryRepository.findByUserOrderByPriority(user).stream()

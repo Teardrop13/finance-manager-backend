@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PeriodDTO {
+public class AccountingPeriodDTO {
 
 	private LocalDate startsOn;
 	private LocalDate endsOn;

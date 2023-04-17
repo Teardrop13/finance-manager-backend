@@ -39,8 +39,8 @@ public class FinancialRecord {
 	private Category category;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "PERIOD_ID", nullable = false)
-	private Period period;
+	@JoinColumn(name = "ACCOUNTING_PERIOD_ID", nullable = false)
+	private AccountingPeriod accountingPeriod;
 
 	@Column(name = "DESCRIPTION")
 	private String description;

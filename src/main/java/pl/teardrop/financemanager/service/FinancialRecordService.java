@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.financemanager.model.Category;
 import pl.teardrop.financemanager.model.FinancialRecord;
-import pl.teardrop.financemanager.model.Period;
+import pl.teardrop.financemanager.model.AccountingPeriod;
 import pl.teardrop.financemanager.repository.FinancialRecordRepository;
 
 import java.util.Collection;
@@ -38,8 +38,8 @@ public class FinancialRecordService {
 	}
 
 	public FinancialRecord save(FinancialRecord financialRecord) {
-		Period period = periodService.getByDate(financialRecord.getTransactionDate(), financialRecord.getUser());
-		financialRecord.setPeriod(period);
+		AccountingPeriod period = periodService.getByDate(financialRecord.getTransactionDate(), financialRecord.getUser());
+		financialRecord.setAccountingPeriod(period);
 		FinancialRecord financialRecordAdded = recordRepository.save(financialRecord);
 		log.info("Saved record id={}, userId={}", financialRecordAdded.getId(), financialRecordAdded.getUser().getId());
 		return financialRecordAdded;

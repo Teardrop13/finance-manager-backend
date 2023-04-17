@@ -12,15 +12,15 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import pl.teardrop.authentication.user.User;
-import pl.teardrop.financemanager.dto.PeriodDTO;
+import pl.teardrop.financemanager.dto.AccountingPeriodDTO;
 
 import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "FM_PERIOD")
-public class Period {
+@Table(name = "FM_ACCOUNTING_PERIOD")
+public class AccountingPeriod {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,8 +36,8 @@ public class Period {
 	@Column(name = "ENDS_ON", nullable = false)
 	private LocalDate endsOn;
 
-	public PeriodDTO toDTO() {
-		return new PeriodDTO(startsOn, endsOn);
+	public AccountingPeriodDTO toDTO() {
+		return new AccountingPeriodDTO(startsOn, endsOn);
 	}
 
 }

@@ -19,7 +19,7 @@ import java.util.Optional;
 public class FinancialRecordService {
 
 	private final FinancialRecordRepository recordRepository;
-	private final PeriodService periodService;
+	private final AccountingPeriodService accountingPeriodService;
 
 	public List<FinancialRecord> getByUser(User user) {
 		return recordRepository.findByUserOrderByCreatedAtDesc(user);
@@ -34,11 +34,11 @@ public class FinancialRecordService {
 	}
 
 	public Collection<FinancialRecord> getByCategory(Category category) {
-		return recordRepository.getByCategory(category);
+		return recordRepository.findByCategory(category);
 	}
 
 	public FinancialRecord save(FinancialRecord financialRecord) {
-		AccountingPeriod period = periodService.getByDate(financialRecord.getTransactionDate(), financialRecord.getUser());
+		AccountingPeriod period = accountingPeriodService.getByDate(financialRecord.getTransactionDate(), financialRecord.getUser());
 		financialRecord.setAccountingPeriod(period);
 		FinancialRecord financialRecordAdded = recordRepository.save(financialRecord);
 		log.info("Saved record id={}, userId={}", financialRecordAdded.getId(), financialRecordAdded.getUser().getId());
@@ -46,7 +46,7 @@ public class FinancialRecordService {
 	}
 
 	public void delete(FinancialRecord financialRecord) {
-		recordRepository.deleteById(financialRecord.getId());
+		recordRepository.delete(financialRecord);
 		log.info("Deleted record id={}, userId={}", financialRecord.getId(), financialRecord.getUser().getId());
 	}
 }

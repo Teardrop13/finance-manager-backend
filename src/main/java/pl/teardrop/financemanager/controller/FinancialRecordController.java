@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/records")
 @Slf4j
 public class FinancialRecordController {
 
@@ -31,7 +31,7 @@ public class FinancialRecordController {
 
 	private final CategoryService categoryService;
 
-	@GetMapping("/records")
+	@GetMapping("/all")
 	public List<FinancialRecordDTO> financialRecords() {
 		return UserUtils.currentUser()
 				.map(user -> recordService.getByUser(user).stream()
@@ -54,7 +54,7 @@ public class FinancialRecordController {
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Could not retrieve user's FinancialRecords. Category not found: " + categoryText));
 	}
 
-	@PostMapping("/add-record")
+	@PostMapping("/add")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void addFinancialRecord(@RequestBody FinancialRecordDTO financialRecordDTO) {
 		UserUtils.currentUser()
@@ -76,7 +76,7 @@ public class FinancialRecordController {
 								 });
 	}
 
-	@PostMapping("/save-record")
+	@PostMapping("/save")
 	@ResponseStatus(HttpStatus.OK)
 	public void saveFinancialRecord(@RequestBody FinancialRecordDTO financialRecordDTO) {
 		recordService.getById(financialRecordDTO.getId())
@@ -90,7 +90,7 @@ public class FinancialRecordController {
 								 });
 	}
 
-	@PostMapping("/delete-record")
+	@PostMapping("/delete")
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteFinancialRecord(@RequestBody FinancialRecordDTO financialRecordDTO) {
 		recordService.getById(financialRecordDTO.getId())

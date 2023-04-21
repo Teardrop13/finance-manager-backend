@@ -37,7 +37,7 @@ public class AccountingPeriod {
 	private LocalDate endsOn;
 
 	public AccountingPeriodDTO toDTO() {
-		return new AccountingPeriodDTO(startsOn, endsOn);
+		return new AccountingPeriodDTO(id, startsOn, endsOn);
 	}
 
 }

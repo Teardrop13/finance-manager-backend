@@ -3,6 +3,8 @@ package pl.teardrop.financemanager.repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.financemanager.model.AccountingPeriod;
@@ -14,15 +16,16 @@ import java.util.Optional;
 @Component
 public interface AccountingPeriodRepository extends Repository<AccountingPeriod, Long> {
 
+	@PostAuthorize("returnObject.isPresent() && returnObject.get().getUser().getId() == authentication.principal.id")
 	Optional<AccountingPeriod> findById(Long id);
 
-	List<AccountingPeriod> findAll();
-
+	@PreAuthorize("#user.getId() == authentication.principal.id")
 	List<AccountingPeriod> findByUserOrderByStartsOn(User user);
 
-	AccountingPeriod save(AccountingPeriod period);
+	AccountingPeriod save(AccountingPeriod accountingPeriod);
 
-	void deleteById(Long id);
+	@PreAuthorize("#accountingPeriod.getUser().getId() == authentication.principal.id")
+	void delete(AccountingPeriod accountingPeriod);
 
 	@Query(value = "SELECT p "
 				   + "FROM AccountingPeriod p "

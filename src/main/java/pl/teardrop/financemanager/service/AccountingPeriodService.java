@@ -2,6 +2,7 @@ package pl.teardrop.financemanager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.financemanager.model.AccountingPeriod;
@@ -16,7 +17,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PeriodService {
+public class AccountingPeriodService {
 
 	private final AccountingPeriodRepository accountingPeriodRepository;
 
@@ -33,11 +34,6 @@ public class PeriodService {
 		AccountingPeriod periodAdded = accountingPeriodRepository.save(period);
 		log.info("Saved period id={}, userId={}", periodAdded.getId(), periodAdded.getUser().getId());
 		return periodAdded;
-	}
-
-	public void delete(long id) {
-		accountingPeriodRepository.deleteById(id);
-		log.info("Period deleted id={}", id);
 	}
 
 	public AccountingPeriod getByDate(LocalDate date, User user) {
@@ -66,5 +62,21 @@ public class PeriodService {
 
 	private static LocalDate getDefaultEndsOn(LocalDate date) {
 		return date.with(TemporalAdjusters.lastDayOfMonth());
+	}
+
+	public AccountingPeriod getCurrent(User user) {
+		return getByDate(LocalDate.now(), user);
+	}
+
+	@PostAuthorize("returnObject.getUser().getId() == authentication.principal.id")
+	public AccountingPeriod getNext(long currentId, User user) {
+		AccountingPeriod accountingPeriod = getById(currentId).orElseThrow(() -> new RuntimeException("AccountingPeriod for id=" + currentId + " and user id=" + user.getId() + " not found"));
+		return getByDate(accountingPeriod.getEndsOn().plusDays(1), user);
+	}
+
+	@PostAuthorize("returnObject.getUser().getId() == authentication.principal.id")
+	public AccountingPeriod getPrevious(long currentId, User user) {
+		AccountingPeriod accountingPeriod = getById(currentId).orElseThrow(() -> new RuntimeException("AccountingPeriod for id=" + currentId + " and user id=" + user.getId() + " not found"));
+		return getByDate(accountingPeriod.getStartsOn().minusDays(1), user);
 	}
 }

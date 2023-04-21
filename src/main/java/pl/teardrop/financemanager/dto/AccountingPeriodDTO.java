@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountingPeriodDTO {
-
+	private long id;
 	private LocalDate startsOn;
 	private LocalDate endsOn;
 }

@@ -2,10 +2,10 @@ package pl.teardrop.financemanager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.financemanager.model.Category;
+import pl.teardrop.financemanager.model.FinancialRecordType;
 import pl.teardrop.financemanager.repository.CategoryRepository;
 
 import java.util.List;
@@ -52,5 +52,9 @@ public class CategoryService {
 			save(category);
 		});
 		log.info("Added default categories for user id=" + user.getId());
+	}
+
+	public List<Category> getByUser(User user, FinancialRecordType type) {
+		return categoryRepository.findByUserAndType(user, type);
 	}
 }

@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.financemanager.model.Category;
+import pl.teardrop.financemanager.model.FinancialRecordType;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +28,6 @@ public interface CategoryRepository extends Repository<Category, Long> {
 	@PreAuthorize("#user.getId() == authentication.principal.id")
 	Optional<Category> getByUserAndName(User user, String name);
 
+	@PreAuthorize("#user.getId() == authentication.principal.id")
+	List<Category> findByUserAndType(User user, FinancialRecordType type);
 }

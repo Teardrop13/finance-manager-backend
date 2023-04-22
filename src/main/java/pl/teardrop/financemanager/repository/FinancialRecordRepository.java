@@ -27,4 +27,7 @@ public interface FinancialRecordRepository extends Repository<FinancialRecord, L
 	FinancialRecord save(FinancialRecord financialRecord);
 
 	void delete(FinancialRecord financialRecord);
+
+	@PreAuthorize("#user.getId() == authentication.principal.id")
+	int countByUser(User user);
 }

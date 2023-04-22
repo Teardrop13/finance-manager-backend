@@ -34,7 +34,7 @@ public class FinancialRecordController {
 	private final CategoryService categoryService;
 
 	@GetMapping("/all")
-	public List<FinancialRecordDTO> financialRecords(@RequestParam(value = "page") int page, @RequestParam(value = "page-size") int pageSize) {
+	public List<FinancialRecordDTO> getAll(@RequestParam(value = "page") int page, @RequestParam(value = "page-size") int pageSize) {
 		return UserUtils.currentUser()
 				.map(user -> recordService.getByUser(user, page, pageSize).stream()
 						.map(FinancialRecord::toDTO)
@@ -42,8 +42,15 @@ public class FinancialRecordController {
 				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords. User not found."));
 	}
 
+	@GetMapping("/count-all")
+	public Integer getCount() {
+		return UserUtils.currentUser()
+				.map(user -> recordService.getRecordsCount(user))
+				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords' count. User not found."));
+	}
+
 	@GetMapping("category/{category}")
-	public List<FinancialRecordDTO> financialRecords(@PathVariable(value = "category") String categoryText) {
+	public List<FinancialRecordDTO> getByCategory(@PathVariable(value = "category") String categoryText) {
 		return UserUtils.currentUser()
 				.map(categoryService::getByUser)
 				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's Categories. User not found."))

@@ -28,6 +28,10 @@ public class FinancialRecordService {
 		return recordRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(page, pageSize));
 	}
 
+	public int getRecordsCount(User user) {
+		return recordRepository.countByUser(user);
+	}
+
 	public List<FinancialRecord> get(Category category) {
 		return recordRepository.findByCategory(category);
 	}

@@ -1,5 +1,6 @@
 package pl.teardrop.financemanager.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.Repository;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +19,7 @@ public interface FinancialRecordRepository extends Repository<FinancialRecord, L
 	Optional<FinancialRecord> findById(Long id);
 
 	@PreAuthorize("#user.getId() == authentication.principal.id")
-	List<FinancialRecord> findByUserOrderByCreatedAtDesc(User user);
+	List<FinancialRecord> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 
 	@PreAuthorize("#category.getUser().getId() == authentication.principal.id")
 	List<FinancialRecord> findByCategory(Category category);

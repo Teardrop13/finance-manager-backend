@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.teardrop.authentication.exceptions.UserNotFoundException;
@@ -33,9 +34,9 @@ public class FinancialRecordController {
 	private final CategoryService categoryService;
 
 	@GetMapping("/all")
-	public List<FinancialRecordDTO> financialRecords() {
+	public List<FinancialRecordDTO> financialRecords(@RequestParam(value = "page") int page, @RequestParam(value = "page-size") int pageSize) {
 		return UserUtils.currentUser()
-				.map(user -> recordService.getByUser(user).stream()
+				.map(user -> recordService.getByUser(user, page, pageSize).stream()
 						.map(FinancialRecord::toDTO)
 						.toList())
 				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords. User not found."));

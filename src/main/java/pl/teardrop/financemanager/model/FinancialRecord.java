@@ -63,7 +63,7 @@ public class FinancialRecord {
 									  description,
 									  amount,
 									  category.getName(),
-									  type.getTextValue(),
+									  type,
 									  transactionDate);
 	}
 }

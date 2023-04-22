@@ -17,7 +17,6 @@ import pl.teardrop.authentication.user.UserUtils;
 import pl.teardrop.financemanager.controller.exceptions.FinancialRecordNotFoundException;
 import pl.teardrop.financemanager.dto.FinancialRecordDTO;
 import pl.teardrop.financemanager.model.FinancialRecord;
-import pl.teardrop.financemanager.model.FinancialRecordType;
 import pl.teardrop.financemanager.service.CategoryService;
 import pl.teardrop.financemanager.service.FinancialRecordService;
 
@@ -34,7 +33,7 @@ public class FinancialRecordController {
 	private final CategoryService categoryService;
 
 	@GetMapping("/all")
-	public List<FinancialRecordDTO> getAll(@RequestParam(value = "page") int page, @RequestParam(value = "page-size") int pageSize) {
+	public List<FinancialRecordDTO> getAll(@RequestParam(value = "page") int page, @RequestParam(value = "pageSize") int pageSize) {
 		return UserUtils.currentUser()
 				.map(user -> recordService.getByUser(user, page, pageSize).stream()
 						.map(FinancialRecord::toDTO)
@@ -74,11 +73,7 @@ public class FinancialRecordController {
 		financialRecord.setDescription(financialRecordDTO.getDescription());
 		financialRecord.setAmount(financialRecordDTO.getAmount());
 		financialRecord.setTransactionDate(financialRecordDTO.getTransactionDate());
-		FinancialRecordType.getByName(financialRecordDTO.getType()).ifPresentOrElse(
-				financialRecord::setType,
-				() -> {
-					throw new RuntimeException("Type not found for string: " + financialRecordDTO.getType());
-				});
+		financialRecord.setType(financialRecordDTO.getType());
 		categoryService.getByUserAndName(user, financialRecordDTO.getCategory()).ifPresentOrElse(
 				financialRecord::setCategory,
 				() -> {

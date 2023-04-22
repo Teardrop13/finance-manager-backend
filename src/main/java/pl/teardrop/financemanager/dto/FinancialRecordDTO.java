@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.teardrop.financemanager.model.FinancialRecordType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ public class FinancialRecordDTO {
 	private String description;
 	private BigDecimal amount;
 	private String category;
-	private String type;
+	private FinancialRecordType type;
 	private LocalDate transactionDate;
 
 }

@@ -9,6 +9,7 @@ import pl.teardrop.financemanager.model.FinancialRecord;
 import pl.teardrop.financemanager.model.AccountingPeriod;
 import pl.teardrop.financemanager.repository.FinancialRecordRepository;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class FinancialRecordService {
 	public FinancialRecord save(FinancialRecord financialRecord) {
 		AccountingPeriod period = accountingPeriodService.getByDate(financialRecord.getTransactionDate(), financialRecord.getUser());
 		financialRecord.setAccountingPeriod(period);
+		financialRecord.setCreatedAt(LocalDateTime.now());
 		FinancialRecord financialRecordAdded = recordRepository.save(financialRecord);
 		log.info("Saved record id={}, userId={}", financialRecordAdded.getId(), financialRecordAdded.getUser().getId());
 		return financialRecordAdded;

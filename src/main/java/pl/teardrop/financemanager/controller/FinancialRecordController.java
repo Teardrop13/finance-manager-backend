@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.teardrop.authentication.exceptions.UserNotFoundException;
+import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserUtils;
-import pl.teardrop.financemanager.controller.exceptions.CategoryNotFoundException;
 import pl.teardrop.financemanager.controller.exceptions.FinancialRecordNotFoundException;
 import pl.teardrop.financemanager.dto.FinancialRecordDTO;
 import pl.teardrop.financemanager.model.FinancialRecord;
+import pl.teardrop.financemanager.model.FinancialRecordType;
 import pl.teardrop.financemanager.service.CategoryService;
 import pl.teardrop.financemanager.service.FinancialRecordService;
 
@@ -23,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/records")
+@RequestMapping("/api/record")
 @Slf4j
 public class FinancialRecordController {
 
@@ -40,7 +41,7 @@ public class FinancialRecordController {
 				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords. User not found."));
 	}
 
-	@GetMapping("/records/{category}")
+	@GetMapping("category/{category}")
 	public List<FinancialRecordDTO> financialRecords(@PathVariable(value = "category") String categoryText) {
 		return UserUtils.currentUser()
 				.map(categoryService::getByUser)
@@ -56,24 +57,28 @@ public class FinancialRecordController {
 
 	@PostMapping("/add")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void addFinancialRecord(@RequestBody FinancialRecordDTO financialRecordDTO) {
-		UserUtils.currentUser()
-				.ifPresentOrElse(user -> {
-									 FinancialRecord financialRecord = new FinancialRecord();
-									 financialRecord.setUser(user);
-									 financialRecord.setDescription(financialRecord.getDescription());
-									 financialRecord.setAmount(financialRecord.getAmount());
-									 categoryService.getByUserAndName(user, financialRecordDTO.getCategoryName()).ifPresentOrElse(
-											 category -> financialRecord.setCategory(category),
-											 () -> {
-												 throw new CategoryNotFoundException("Failed to create FinancialRecord. Category " + financialRecordDTO.getCategoryName() + " not found for user id=" + user.getId());
-											 }
-									 );
-									 recordService.save(financialRecord);
-								 },
-								 () -> {
-									 throw new UserNotFoundException("Failed to create FinancialRecord. User not found.");
-								 });
+	public FinancialRecordDTO addFinancialRecord(@RequestBody FinancialRecordDTO financialRecordDTO) {
+		User user = UserUtils.currentUser()
+				.orElseThrow(() -> new UserNotFoundException("Failed to create FinancialRecord. User not found."));
+
+		FinancialRecord financialRecord = new FinancialRecord();
+		financialRecord.setUser(user);
+		financialRecord.setDescription(financialRecordDTO.getDescription());
+		financialRecord.setAmount(financialRecordDTO.getAmount());
+		financialRecord.setTransactionDate(financialRecordDTO.getTransactionDate());
+		FinancialRecordType.getByName(financialRecordDTO.getType()).ifPresentOrElse(
+				financialRecord::setType,
+				() -> {
+					throw new RuntimeException("Type not found for string: " + financialRecordDTO.getType());
+				});
+		categoryService.getByUserAndName(user, financialRecordDTO.getCategory()).ifPresentOrElse(
+				financialRecord::setCategory,
+				() -> {
+					throw new RuntimeException("Failed to create FinancialRecord. Category " + financialRecordDTO.getCategory() + " not found for user id=" + user.getId());
+				}
+		);
+		FinancialRecord recordAdded = recordService.save(financialRecord);
+		return recordAdded.toDTO();
 	}
 
 	@PostMapping("/save")

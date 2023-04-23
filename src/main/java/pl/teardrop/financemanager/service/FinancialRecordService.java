@@ -5,15 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.User;
+import pl.teardrop.financemanager.dto.SummaryDTO;
 import pl.teardrop.financemanager.model.AccountingPeriod;
 import pl.teardrop.financemanager.model.Category;
 import pl.teardrop.financemanager.model.FinancialRecord;
+import pl.teardrop.financemanager.model.FinancialRecordType;
 import pl.teardrop.financemanager.repository.FinancialRecordRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -56,5 +60,13 @@ public class FinancialRecordService {
 	public void delete(FinancialRecord financialRecord) {
 		recordRepository.delete(financialRecord);
 		log.info("Deleted record id={}, userId={}", financialRecord.getId(), financialRecord.getUser().getId());
+	}
+
+	public List<SummaryDTO> getSummary(int periodId, FinancialRecordType type) {
+		return new ArrayList<>(recordRepository.findByPeriodIdAndType(periodId, type).stream()
+									   .map(r -> new SummaryDTO(r.getAmount(), r.getCategory().getName()))
+									   .collect(Collectors.groupingBy(SummaryDTO::category,
+																	  Collectors.reducing(SummaryDTO.ZERO, SummaryDTO::add)))
+									   .values());
 	}
 }

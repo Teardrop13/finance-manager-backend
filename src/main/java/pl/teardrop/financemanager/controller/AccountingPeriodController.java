@@ -14,7 +14,7 @@ import pl.teardrop.financemanager.service.AccountingPeriodService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/accounting-period")
+@RequestMapping("/api/accounting-periods")
 @Slf4j
 public class AccountingPeriodController {
 

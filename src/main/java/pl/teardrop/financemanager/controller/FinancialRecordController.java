@@ -3,9 +3,11 @@ package pl.teardrop.financemanager.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/record")
+@RequestMapping("/api/records")
 @Slf4j
 public class FinancialRecordController {
 
@@ -32,8 +34,9 @@ public class FinancialRecordController {
 
 	private final CategoryService categoryService;
 
-	@GetMapping("/all")
-	public List<FinancialRecordDTO> getAll(@RequestParam(value = "page") int page, @RequestParam(value = "pageSize") int pageSize) {
+	@GetMapping
+	public List<FinancialRecordDTO> getAll(@RequestParam(value = "page") int page,
+										   @RequestParam(value = "pageSize") int pageSize) {
 		return UserUtils.currentUser()
 				.map(user -> recordService.getByUser(user, page, pageSize).stream()
 						.map(FinancialRecord::toDTO)
@@ -41,14 +44,14 @@ public class FinancialRecordController {
 				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords. User not found."));
 	}
 
-	@GetMapping("/count-all")
+	@GetMapping("/count")
 	public Integer getCount() {
 		return UserUtils.currentUser()
 				.map(user -> recordService.getRecordsCount(user))
 				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords' count. User not found."));
 	}
 
-	@GetMapping("category/{category}")
+	@GetMapping("/category/{category}")
 	public List<FinancialRecordDTO> getByCategory(@PathVariable(value = "category") String categoryText) {
 		return UserUtils.currentUser()
 				.map(categoryService::getByUser)
@@ -62,9 +65,9 @@ public class FinancialRecordController {
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Could not retrieve user's FinancialRecords. Category not found: " + categoryText));
 	}
 
-	@PostMapping("/add")
+	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public FinancialRecordDTO addFinancialRecord(@RequestBody FinancialRecordDTO financialRecordDTO) {
+	public FinancialRecordDTO add(@RequestBody FinancialRecordDTO financialRecordDTO) {
 		User user = UserUtils.currentUser()
 				.orElseThrow(() -> new UserNotFoundException("Failed to create FinancialRecord. User not found."));
 
@@ -84,9 +87,9 @@ public class FinancialRecordController {
 		return recordAdded.toDTO();
 	}
 
-	@PostMapping("/save")
+	@PutMapping
 	@ResponseStatus(HttpStatus.OK)
-	public void saveFinancialRecord(@RequestBody FinancialRecordDTO financialRecordDTO) {
+	public void save(@RequestBody FinancialRecordDTO financialRecordDTO) {
 		recordService.getById(financialRecordDTO.getId())
 				.ifPresentOrElse(financialRecord -> {
 									 financialRecord.setDescription(financialRecordDTO.getDescription());
@@ -98,14 +101,13 @@ public class FinancialRecordController {
 								 });
 	}
 
-	@PostMapping("/delete")
+	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public void deleteFinancialRecord(@RequestBody FinancialRecordDTO financialRecordDTO) {
-		recordService.getById(financialRecordDTO.getId())
-				.ifPresentOrElse(recordService::delete,
-								 () -> {
-									 throw new FinancialRecordNotFoundException("FinancialRecord not found.");
-								 });
+	public void delete(@PathVariable long id) {
+		FinancialRecord financialRecord = recordService.getById(id)
+				.orElseThrow(() -> new FinancialRecordNotFoundException("FinancialRecord not found."));
+
+		recordService.delete(financialRecord);
 	}
 
 }

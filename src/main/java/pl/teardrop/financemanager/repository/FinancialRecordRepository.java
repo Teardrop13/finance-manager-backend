@@ -41,7 +41,4 @@ public interface FinancialRecordRepository extends Repository<FinancialRecord, L
 	@PreAuthorize("#user.getId() == authentication.principal.id")
 	int countByUser(User user);
 
-	@PreAuthorize("#category.getUser().getId() == authentication.principal.id")
-	boolean existsByCategory(Category category);
-
 }

@@ -8,6 +8,7 @@ import pl.teardrop.financemanager.model.Category;
 import pl.teardrop.financemanager.model.FinancialRecordType;
 import pl.teardrop.financemanager.repository.CategoryRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,9 +30,9 @@ public class CategoryService {
 	}
 
 	public Category save(Category category) {
-		Category categoryAdded = categoryRepository.save(category);
-		log.info("Saved category id={}, userId={}", categoryAdded.getId(), categoryAdded.getUser().getId());
-		return categoryAdded;
+		Category savedCategory = categoryRepository.save(category);
+		log.info("Saved category id={}, userId={}", savedCategory.getId(), savedCategory.getUser().getId());
+		return savedCategory;
 	}
 
 	public void delete(long id) {
@@ -40,6 +41,10 @@ public class CategoryService {
 			categoryRepository.save(category);
 			log.info("Category marked deleted id={}, userId={}", category.getId(), category.getUser().getId());
 		});
+	}
+
+	public List<Category> getByUserAndType(User user, FinancialRecordType type) {
+		return categoryRepository.getByUserAndTypeOrderByPriority(user, type);
 	}
 
 	public Optional<Category> getByUserAndName(User user, String name) {
@@ -51,10 +56,29 @@ public class CategoryService {
 			category.setUser(user);
 			save(category);
 		});
-		log.info("Added default categories for user id=" + user.getId());
+		log.info("Added default categories for user id={}", user.getId());
 	}
 
 	public List<Category> getByUser(User user, FinancialRecordType type) {
 		return categoryRepository.findByUserAndType(user, type);
+	}
+
+	public Optional<Category> getLast(User user, FinancialRecordType type) {
+		return getByUser(user, type).stream()
+				.max(Comparator.comparing(Category::getPriority));
+	}
+
+	public Optional<Category> getByUserAndTypeAndName(User user, FinancialRecordType type, String name) {
+		return categoryRepository.getByUserAndTypeAndNameIgnoreCase(user, type, name);
+	}
+
+	public void reorder(User user, FinancialRecordType type) {
+		List<Category> categories = getByUserAndType(user, type);
+		for (int i = 0; i < categories.size(); i++) {
+			Category category = categories.get(i);
+			category.setPriority(i + 1);
+			save(category);
+		}
+		log.info("Categories reordered for user id={}", user.getId());
 	}
 }

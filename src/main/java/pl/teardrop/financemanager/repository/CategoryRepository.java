@@ -14,7 +14,7 @@ import java.util.Optional;
 @Component
 public interface CategoryRepository extends Repository<Category, Long> {
 
-	@PostAuthorize("returnObject.isPresent() && returnObject.get().getUser().getId() == authentication.principal.id")
+	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUser().getId() == authentication.principal.id : true")
 	Optional<Category> findById(Long id);
 
 	@PreAuthorize("#user.getId() == authentication.principal.id")
@@ -30,4 +30,10 @@ public interface CategoryRepository extends Repository<Category, Long> {
 
 	@PreAuthorize("#user.getId() == authentication.principal.id")
 	List<Category> findByUserAndType(User user, FinancialRecordType type);
+
+	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUser().getId() == authentication.principal.id : true")
+	Optional<Category> getByUserAndTypeAndNameIgnoreCase(User user, FinancialRecordType type, String name);
+
+	@PreAuthorize("#user.getId() == authentication.principal.id")
+	List<Category> getByUserAndTypeOrderByPriority(User user, FinancialRecordType type);
 }

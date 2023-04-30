@@ -16,7 +16,7 @@ import java.util.Optional;
 @Component
 public interface AccountingPeriodRepository extends Repository<AccountingPeriod, Long> {
 
-	@PostAuthorize("returnObject.isPresent() && returnObject.get().getUser().getId() == authentication.principal.id")
+	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUser().getId() == authentication.principal.id : true")
 	Optional<AccountingPeriod> findById(Long id);
 
 	@PreAuthorize("#user.getId() == authentication.principal.id")

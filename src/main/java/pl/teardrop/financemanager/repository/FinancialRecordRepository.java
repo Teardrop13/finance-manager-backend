@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 public interface FinancialRecordRepository extends Repository<FinancialRecord, Long> {
 
-	@PostAuthorize("returnObject.isPresent() && returnObject.get().getUser().getId() == authentication.principal.id")
+	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUser().getId() == authentication.principal.id : true")
 	Optional<FinancialRecord> findById(Long id);
 
 	@Query(value = "SELECT r "
@@ -40,5 +40,8 @@ public interface FinancialRecordRepository extends Repository<FinancialRecord, L
 
 	@PreAuthorize("#user.getId() == authentication.principal.id")
 	int countByUser(User user);
+
+	@PreAuthorize("#category.getUser().getId() == authentication.principal.id")
+	boolean existsByCategory(Category category);
 
 }

@@ -81,6 +81,7 @@ public class CategoryController {
 			log.info("Category with name \"{}\" exists", addRequest.getName());
 
 			if (existingCategory.isDeleted()) {
+				existingCategory.setName(addRequest.getName());
 				existingCategory.setDeleted(false);
 				categoryService.getLast(existingCategory.getUser(), existingCategory.getType()).ifPresent(last -> {
 					existingCategory.setPriority(last.getPriority() + 1);

@@ -19,6 +19,7 @@ import pl.teardrop.authentication.user.UserUtils;
 import pl.teardrop.financemanager.controller.exceptions.FinancialRecordNotFoundException;
 import pl.teardrop.financemanager.dto.FinancialRecordDTO;
 import pl.teardrop.financemanager.model.FinancialRecord;
+import pl.teardrop.financemanager.model.FinancialRecordType;
 import pl.teardrop.financemanager.service.CategoryService;
 import pl.teardrop.financemanager.service.FinancialRecordService;
 
@@ -35,8 +36,20 @@ public class FinancialRecordController {
 	private final CategoryService categoryService;
 
 	@GetMapping
-	public List<FinancialRecordDTO> getAll(@RequestParam(value = "page") int page,
-										   @RequestParam(value = "pageSize") int pageSize) {
+	public List<FinancialRecordDTO> get(@RequestParam int periodId,
+										@RequestParam FinancialRecordType type,
+										@RequestParam int page,
+										@RequestParam int pageSize) {
+		return UserUtils.currentUser()
+				.map(user -> recordService.getByUser(user, periodId, type, page, pageSize).stream()
+						.map(FinancialRecord::toDTO)
+						.toList())
+				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords. User not found."));
+	}
+
+	@GetMapping("/all")
+	public List<FinancialRecordDTO> getAll(@RequestParam int page,
+										   @RequestParam int pageSize) {
 		return UserUtils.currentUser()
 				.map(user -> recordService.getByUser(user, page, pageSize).stream()
 						.map(FinancialRecord::toDTO)
@@ -45,6 +58,14 @@ public class FinancialRecordController {
 	}
 
 	@GetMapping("/count")
+	public Integer getCount(@RequestParam int periodId,
+							@RequestParam FinancialRecordType type) {
+		return UserUtils.currentUser()
+				.map(user -> recordService.getRecordsCount(user, periodId, type))
+				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords' count. User not found."));
+	}
+
+	@GetMapping("/count/all")
 	public Integer getCount() {
 		return UserUtils.currentUser()
 				.map(user -> recordService.getRecordsCount(user))

@@ -27,6 +27,15 @@ public class FinancialRecordService {
 	private final FinancialRecordRepository recordRepository;
 	private final AccountingPeriodService accountingPeriodService;
 
+	public List<FinancialRecord> getByUser(User user,
+										   int periodId,
+										   FinancialRecordType type,
+										   int page,
+										   int pageSize) {
+		// todo sorting
+		return recordRepository.findByUserAndAccountingPeriodIdAndTypeOrderByCreatedAtDesc(user, periodId, type, PageRequest.of(page, pageSize));
+	}
+
 	public List<FinancialRecord> getByUser(User user, int page, int pageSize) {
 		// todo sorting
 		return recordRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(page, pageSize));
@@ -34,6 +43,10 @@ public class FinancialRecordService {
 
 	public int getRecordsCount(User user) {
 		return recordRepository.countByUser(user);
+	}
+
+	public int getRecordsCount(User user, int periodId, FinancialRecordType type) {
+		return recordRepository.countByUserAndAccountingPeriodIdAndType(user, periodId, type);
 	}
 
 	public List<FinancialRecord> get(Category category) {

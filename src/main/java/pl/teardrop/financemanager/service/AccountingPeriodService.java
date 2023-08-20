@@ -39,7 +39,7 @@ public class AccountingPeriodService {
 	public AccountingPeriod getByDate(LocalDate date, User user) {
 		return accountingPeriodRepository.findFirstByDate(date, user)
 				.orElseGet(() -> {
-					log.info("Period for date " + date + " not found");
+					log.info("Period for date {} not found", date);
 					AccountingPeriod period = new AccountingPeriod();
 					period.setUser(user);
 					period.setStartsOn(getDefaultStartsOn(date));

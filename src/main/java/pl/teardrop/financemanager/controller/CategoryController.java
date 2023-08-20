@@ -17,13 +17,11 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.teardrop.authentication.exceptions.UserNotFoundException;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserUtils;
-import pl.teardrop.financemanager.controller.exceptions.AddCategoryException;
 import pl.teardrop.financemanager.dto.AddCategoryRequest;
 import pl.teardrop.financemanager.dto.CategoryDTO;
 import pl.teardrop.financemanager.model.Category;
 import pl.teardrop.financemanager.model.FinancialRecordType;
 import pl.teardrop.financemanager.service.CategoryService;
-import pl.teardrop.financemanager.service.FinancialRecordService;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +31,6 @@ import java.util.Optional;
 @RequestMapping("/api/categories")
 @Slf4j
 public class CategoryController {
-
-	private final FinancialRecordService recordService;
 
 	private final CategoryService categoryService;
 
@@ -90,7 +86,7 @@ public class CategoryController {
 				categoryService.reorder(user, addRequest.getType());
 				return ResponseEntity.ok(existingCategoryUpdated.toDTO());
 			} else {
-				throw new AddCategoryException("Category with name " + addRequest.getName() + " exists");
+				throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with name \"" + addRequest.getName() + "\" exists");
 			}
 		} else {
 			int lastCategoryPriority = categoryService.getLast(user, addRequest.getType())

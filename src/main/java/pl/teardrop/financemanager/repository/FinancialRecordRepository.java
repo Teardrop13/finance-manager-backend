@@ -39,6 +39,7 @@ public interface FinancialRecordRepository extends Repository<FinancialRecord, L
 	@PreAuthorize("#category.getUser().getId() == authentication.principal.id")
 	List<FinancialRecord> findByCategory(Category category);
 
+	@PreAuthorize("#financialRecord.getUser().getId() == authentication.principal.id")
 	FinancialRecord save(FinancialRecord financialRecord);
 
 	@PreAuthorize("#financialRecord.getUser().getId() == authentication.principal.id")

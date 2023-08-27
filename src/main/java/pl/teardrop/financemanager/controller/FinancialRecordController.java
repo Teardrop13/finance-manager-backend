@@ -1,5 +1,6 @@
 package pl.teardrop.financemanager.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,11 +18,15 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.teardrop.authentication.exceptions.UserNotFoundException;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserUtils;
+import pl.teardrop.financemanager.dto.CreateFinancialRecordCommand;
 import pl.teardrop.financemanager.dto.FinancialRecordDTO;
+import pl.teardrop.financemanager.dto.UpdateFinancialRecordCommand;
 import pl.teardrop.financemanager.model.FinancialRecord;
 import pl.teardrop.financemanager.model.FinancialRecordType;
 import pl.teardrop.financemanager.service.CategoryService;
 import pl.teardrop.financemanager.service.FinancialRecordService;
+import pl.teardrop.financemanager.service.exceptions.CategoryNotFoundException;
+import pl.teardrop.financemanager.service.exceptions.FinancialRecordNotFoundException;
 
 import java.util.List;
 
@@ -32,7 +37,6 @@ import java.util.List;
 public class FinancialRecordController {
 
 	private final FinancialRecordService recordService;
-
 	private final CategoryService categoryService;
 
 	@GetMapping
@@ -96,47 +100,36 @@ public class FinancialRecordController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public FinancialRecordDTO add(@RequestBody FinancialRecordDTO financialRecordDTO) {
+	public FinancialRecordDTO add(@Valid @RequestBody CreateFinancialRecordCommand createCommand) {
 		User user = UserUtils.currentUser()
 				.orElseThrow(() -> new UserNotFoundException("Failed to create FinancialRecord. User not found."));
 
-		FinancialRecord financialRecord = new FinancialRecord();
-		financialRecord.setUser(user);
-		financialRecord.setDescription(financialRecordDTO.getDescription());
-		financialRecord.setAmount(financialRecordDTO.getAmount());
-		financialRecord.setTransactionDate(financialRecordDTO.getTransactionDate());
-		financialRecord.setType(financialRecordDTO.getType());
-		categoryService.getByUserAndTypeAndName(user, financialRecordDTO.getType(), financialRecordDTO.getCategory()).ifPresentOrElse(
-				financialRecord::setCategory,
-				() -> {
-					throw new RuntimeException("Failed to create FinancialRecord. Category " + financialRecordDTO.getCategory() + " not found for user id=" + user.getId());
-				}
-		);
-		FinancialRecord recordAdded = recordService.save(financialRecord);
-		return recordAdded.toDTO();
+		try {
+			FinancialRecord recordAdded = recordService.create(user, createCommand);
+			return recordAdded.toDTO();
+		} catch (CategoryNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category \"%s\" not found".formatted(createCommand.getCategory()));
+		}
 	}
 
 	@PutMapping
 	@ResponseStatus(HttpStatus.OK)
-	public void save(@RequestBody FinancialRecordDTO financialRecordDTO) {
-		recordService.getById(financialRecordDTO.getId())
-				.ifPresentOrElse(financialRecord -> {
-									 financialRecord.setDescription(financialRecordDTO.getDescription());
-									 financialRecord.setAmount(financialRecordDTO.getAmount());
-									 recordService.save(financialRecord);
-								 },
-								 () -> {
-									 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FinancialRecord not found.");
-								 });
+	public void update(@Valid @RequestBody UpdateFinancialRecordCommand updateCommand) {
+		try {
+			recordService.update(updateCommand);
+		} catch (FinancialRecordNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FinancialRecord not found.");
+		}
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public void delete(@PathVariable long id) {
-		FinancialRecord financialRecord = recordService.getById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FinancialRecord not found."));
-
-		recordService.delete(financialRecord);
+		try {
+			recordService.delete(id);
+		} catch (FinancialRecordNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FinancialRecord not found.");
+		}
 	}
 
 }

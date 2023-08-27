@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import pl.teardrop.authentication.exceptions.UserNotFoundException;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserUtils;
-import pl.teardrop.financemanager.controller.exceptions.FinancialRecordNotFoundException;
 import pl.teardrop.financemanager.dto.FinancialRecordDTO;
 import pl.teardrop.financemanager.model.FinancialRecord;
 import pl.teardrop.financemanager.model.FinancialRecordType;
@@ -91,7 +91,7 @@ public class FinancialRecordController {
 				.map(category -> recordService.getByCategory(category).stream()
 						.map(FinancialRecord::toDTO)
 						.toList())
-				.orElseThrow(() -> new FinancialRecordNotFoundException("Could not retrieve user's FinancialRecords. Category not found: " + categoryText));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not retrieve user's FinancialRecords. Category not found: " + categoryText));
 	}
 
 	@PostMapping
@@ -126,7 +126,7 @@ public class FinancialRecordController {
 									 recordService.save(financialRecord);
 								 },
 								 () -> {
-									 throw new FinancialRecordNotFoundException("FinancialRecord not found.");
+									 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FinancialRecord not found.");
 								 });
 	}
 
@@ -134,7 +134,7 @@ public class FinancialRecordController {
 	@ResponseStatus(HttpStatus.OK)
 	public void delete(@PathVariable long id) {
 		FinancialRecord financialRecord = recordService.getById(id)
-				.orElseThrow(() -> new FinancialRecordNotFoundException("FinancialRecord not found."));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FinancialRecord not found."));
 
 		recordService.delete(financialRecord);
 	}

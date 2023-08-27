@@ -47,10 +47,6 @@ public class CategoryService {
 		return categoryRepository.getByUserAndTypeOrderByPriority(user, type);
 	}
 
-	public Optional<Category> getByUserAndName(User user, String name) {
-		return categoryRepository.getByUserAndName(user, name);
-	}
-
 	public void addDefaultCategorires(User user) {
 		new JsonUtil().loadDefaultCategories().forEach(category -> {
 			category.setUser(user);

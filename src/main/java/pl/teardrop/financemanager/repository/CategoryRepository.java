@@ -26,9 +26,6 @@ public interface CategoryRepository extends Repository<Category, Long> {
 	void delete(Category category);
 
 	@PreAuthorize("#user.getId() == authentication.principal.id")
-	Optional<Category> getByUserAndName(User user, String name);
-
-	@PreAuthorize("#user.getId() == authentication.principal.id")
 	List<Category> findByUserAndType(User user, FinancialRecordType type);
 
 	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUser().getId() == authentication.principal.id : true")

@@ -98,7 +98,7 @@ public class FinancialRecordController {
 		financialRecord.setAmount(financialRecordDTO.getAmount());
 		financialRecord.setTransactionDate(financialRecordDTO.getTransactionDate());
 		financialRecord.setType(financialRecordDTO.getType());
-		categoryService.getByUserAndName(user, financialRecordDTO.getCategory()).ifPresentOrElse(
+		categoryService.getByUserAndTypeAndName(user, financialRecordDTO.getType(), financialRecordDTO.getCategory()).ifPresentOrElse(
 				financialRecord::setCategory,
 				() -> {
 					throw new RuntimeException("Failed to create FinancialRecord. Category " + financialRecordDTO.getCategory() + " not found for user id=" + user.getId());

@@ -14,7 +14,7 @@
     <name>finance-manager</name>
     <properties>
         <java.version>17</java.version>
-        <authentication.version>0.2</authentication.version>
+        <authentication.version>0.3</authentication.version>
     </properties>
 
     <dependencies>

@@ -6,10 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pl.teardrop.authentication.exceptions.UserNotFoundException;
+import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserUtils;
 import pl.teardrop.financemanager.dto.AccountingPeriodDTO;
-import pl.teardrop.financemanager.model.AccountingPeriod;
 import pl.teardrop.financemanager.service.AccountingPeriodService;
 
 @RestController
@@ -22,26 +21,20 @@ public class AccountingPeriodController {
 
 	@GetMapping("/current")
 	public AccountingPeriodDTO getCurrent() {
-		return UserUtils.currentUser()
-				.map(accountingPeriodService::getCurrent)
-				.map(AccountingPeriod::toDTO)
-				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's AccountingPeriod. User not found."));
+		User user = UserUtils.currentUser();
+		return accountingPeriodService.getCurrent(user).toDTO();
 	}
 
 	@GetMapping("/next")
 	public AccountingPeriodDTO getNext(@RequestParam long currentId) {
-		return UserUtils.currentUser()
-				.map(user -> accountingPeriodService.getNext(currentId, user))
-				.map(AccountingPeriod::toDTO)
-				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's AccountingPeriod. User not found."));
+		User user = UserUtils.currentUser();
+		return accountingPeriodService.getNext(currentId, user).toDTO();
 	}
 
 	@GetMapping("/previous")
 	public AccountingPeriodDTO getPrevious(@RequestParam Long currentId) {
-		return UserUtils.currentUser()
-				.map(user -> accountingPeriodService.getPrevious(currentId, user))
-				.map(AccountingPeriod::toDTO)
-				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's AccountingPeriod. User not found."));
+		User user = UserUtils.currentUser();
+		return accountingPeriodService.getPrevious(currentId, user).toDTO();
 	}
 
 }

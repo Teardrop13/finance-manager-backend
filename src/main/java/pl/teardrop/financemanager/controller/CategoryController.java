@@ -36,22 +36,20 @@ public class CategoryController {
 
 	@GetMapping("/income")
 	public List<CategoryDTO> getIncomeCategories() {
-		return UserUtils.currentUser()
-				.map(user -> categoryService.getByUser(user, FinancialRecordType.INCOME).stream()
-						.filter(category -> !category.isDeleted())
-						.map(Category::toDTO)
-						.toList())
-				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's income categories. User not found."));
+		User user = UserUtils.currentUser();
+		return categoryService.getByUser(user, FinancialRecordType.INCOME).stream()
+				.filter(category -> !category.isDeleted())
+				.map(Category::toDTO)
+				.toList();
 	}
 
 	@GetMapping("/expense")
 	public List<CategoryDTO> getExpenseCategories() {
-		return UserUtils.currentUser()
-				.map(user -> categoryService.getByUser(user, FinancialRecordType.EXPENSE).stream()
-						.filter(category -> !category.isDeleted())
-						.map(Category::toDTO)
-						.toList())
-				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's expense categories. User not found."));
+		User user = UserUtils.currentUser();
+		return categoryService.getByUser(user, FinancialRecordType.EXPENSE).stream()
+				.filter(category -> !category.isDeleted())
+				.map(Category::toDTO)
+				.toList();
 	}
 
 	@PutMapping
@@ -69,7 +67,7 @@ public class CategoryController {
 
 	@PostMapping
 	public ResponseEntity<CategoryDTO> add(@RequestBody AddCategoryRequest addRequest) {
-		User user = UserUtils.currentUser().orElseThrow(() -> new UserNotFoundException("User not found"));
+		User user = UserUtils.currentUser();
 
 		Optional<Category> categoryOptional = categoryService.getByUserAndTypeAndName(user, addRequest.getType(), addRequest.getName());
 		if (categoryOptional.isPresent()) {

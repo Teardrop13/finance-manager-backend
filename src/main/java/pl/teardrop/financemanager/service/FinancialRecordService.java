@@ -3,6 +3,7 @@ package pl.teardrop.financemanager.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.financemanager.dto.SummaryDTO;
@@ -31,13 +32,16 @@ public class FinancialRecordService {
 										   int periodId,
 										   FinancialRecordType type,
 										   int page,
-										   int pageSize) {
-		// todo sorting
-		return recordRepository.findByUserAndAccountingPeriodIdAndTypeOrderByTransactionDateDesc(user, periodId, type, PageRequest.of(page, pageSize));
+										   int pageSize,
+										   String sortBy,
+										   boolean isAscending) {
+		Sort sort = Sort.by(sortBy);
+		sort = isAscending ? sort.ascending() : sort.descending();
+
+		return recordRepository.findByUserAndAccountingPeriodIdAndType(user, periodId, type, PageRequest.of(page, pageSize, sort));
 	}
 
 	public List<FinancialRecord> getByUser(User user, int page, int pageSize) {
-		// todo sorting
 		return recordRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(page, pageSize));
 	}
 

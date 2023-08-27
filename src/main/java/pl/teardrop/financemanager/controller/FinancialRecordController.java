@@ -39,9 +39,17 @@ public class FinancialRecordController {
 	public List<FinancialRecordDTO> get(@RequestParam int periodId,
 										@RequestParam FinancialRecordType type,
 										@RequestParam int page,
-										@RequestParam int pageSize) {
+										@RequestParam int pageSize,
+										@RequestParam String sortBy,
+										@RequestParam Boolean isAscending) {
 		return UserUtils.currentUser()
-				.map(user -> recordService.getByUser(user, periodId, type, page, pageSize).stream()
+				.map(user -> recordService.getByUser(user,
+													 periodId,
+													 type,
+													 page,
+													 pageSize,
+													 sortBy != null ? sortBy : "transactionDate",
+													 isAscending != null ? isAscending : false).stream()
 						.map(FinancialRecord::toDTO)
 						.toList())
 				.orElseThrow(() -> new UserNotFoundException("Could not retrieve user's FinancialRecords. User not found."));

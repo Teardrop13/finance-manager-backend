@@ -6,7 +6,7 @@ import pl.teardrop.authentication.user.DefaultUserService;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserRepository;
 import pl.teardrop.authentication.user.UserService;
-import pl.teardrop.financemanager.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.CategoryService;
 
 public class FinancialManagerUserService extends DefaultUserService implements UserService {
 

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.teardrop.authentication.user.UserRepository;
 import pl.teardrop.authentication.user.UserService;
-import pl.teardrop.financemanager.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.CategoryService;
 
 @Configuration
 public class AuthenticationConfiguration {

@@ -1,5 +1,6 @@
 package pl.teardrop.financemanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class FinancialRecordDTO {
 	private BigDecimal amount;
 	private String category;
 	private FinancialRecordType type;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private LocalDate transactionDate;
 
 }

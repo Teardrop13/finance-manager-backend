@@ -10,16 +10,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @ComponentScan({
+		"pl.teardrop.financemanager",
 		"pl.teardrop.authentication",
-		"pl.teardrop.financemanager"
 })
 @EntityScan({
+		"pl.teardrop.financemanager",
 		"pl.teardrop.authentication.user",
-		"pl.teardrop.financemanager.model"
 })
 @EnableJpaRepositories({
+		"pl.teardrop.financemanager",
 		"pl.teardrop.authentication.user",
-		"pl.teardrop.financemanager.repository"
 })
 public class FinanceManagerApplication {
 

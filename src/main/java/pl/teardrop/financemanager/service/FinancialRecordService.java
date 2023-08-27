@@ -7,7 +7,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.financemanager.dto.CreateFinancialRecordCommand;
-import pl.teardrop.financemanager.dto.SummaryDTO;
 import pl.teardrop.financemanager.dto.UpdateFinancialRecordCommand;
 import pl.teardrop.financemanager.model.AccountingPeriod;
 import pl.teardrop.financemanager.model.Category;
@@ -18,11 +17,8 @@ import pl.teardrop.financemanager.service.exceptions.CategoryNotFoundException;
 import pl.teardrop.financemanager.service.exceptions.FinancialRecordNotFoundException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -50,24 +46,24 @@ public class FinancialRecordService {
 		return recordRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(page, pageSize));
 	}
 
+	public Optional<FinancialRecord> getById(long id) {
+		return recordRepository.findById(id);
+	}
+
+	public List<FinancialRecord> getByCategory(Category category) {
+		return recordRepository.findByCategory(category);
+	}
+
+	public List<FinancialRecord> getByPeriodIdAndType(long periodId, FinancialRecordType type) {
+		return recordRepository.findByPeriodIdAndType(periodId, type);
+	}
+
 	public int getRecordsCount(User user) {
 		return recordRepository.countByUser(user);
 	}
 
 	public int getRecordsCount(User user, int periodId, FinancialRecordType type) {
 		return recordRepository.countByUserAndAccountingPeriodIdAndType(user, periodId, type);
-	}
-
-	public List<FinancialRecord> get(Category category) {
-		return recordRepository.findByCategory(category);
-	}
-
-	public Optional<FinancialRecord> getById(long id) {
-		return recordRepository.findById(id);
-	}
-
-	public Collection<FinancialRecord> getByCategory(Category category) {
-		return recordRepository.findByCategory(category);
 	}
 
 	public FinancialRecord create(User user, CreateFinancialRecordCommand createCommand) throws CategoryNotFoundException {
@@ -105,13 +101,5 @@ public class FinancialRecordService {
 	public void delete(FinancialRecord financialRecord) {
 		recordRepository.delete(financialRecord);
 		log.info("Deleted record id={}, userId={}", financialRecord.getId(), financialRecord.getUser().getId());
-	}
-
-	public List<SummaryDTO> getSummary(int periodId, FinancialRecordType type) {
-		return new ArrayList<>(recordRepository.findByPeriodIdAndType(periodId, type).stream()
-									   .map(r -> new SummaryDTO(r.getAmount(), r.getCategory().getName()))
-									   .collect(Collectors.groupingBy(SummaryDTO::category,
-																	  Collectors.reducing(SummaryDTO.ZERO, SummaryDTO::add)))
-									   .values());
 	}
 }

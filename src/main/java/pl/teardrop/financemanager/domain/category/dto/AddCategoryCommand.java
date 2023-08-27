@@ -8,7 +8,7 @@ import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordTy
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddCategoryRequest {
+public class AddCategoryCommand {
 
 	private String name;
 	private FinancialRecordType type;

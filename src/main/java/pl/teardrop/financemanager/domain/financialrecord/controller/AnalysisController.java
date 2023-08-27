@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.financialrecord.dto.SummaryDTO;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 import pl.teardrop.financemanager.domain.financialrecord.service.SummaryCalculator;
@@ -21,8 +22,8 @@ public class AnalysisController {
 	private final SummaryCalculator summaryCalculator;
 
 	@GetMapping("/summary")
-	public List<SummaryDTO> getSummary(@RequestParam FinancialRecordType type, @RequestParam int periodId) {
-		return summaryCalculator.getSummary(periodId, type);
+	public List<SummaryDTO> getSummary(@RequestParam FinancialRecordType type, @RequestParam long periodId) {
+		return summaryCalculator.getSummary(new AccountingPeriodId(periodId), type);
 	}
 
 }

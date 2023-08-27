@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.authentication.user.UserUtils;
-import pl.teardrop.financemanager.domain.category.dto.AddCategoryRequest;
+import pl.teardrop.financemanager.domain.category.dto.AddCategoryCommand;
 import pl.teardrop.financemanager.domain.category.dto.CategoryDTO;
 import pl.teardrop.financemanager.domain.category.model.Category;
-import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
+import pl.teardrop.financemanager.domain.category.model.CategoryId;
 import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +36,8 @@ public class CategoryController {
 
 	@GetMapping("/income")
 	public List<CategoryDTO> getIncomeCategories() {
-		User user = UserUtils.currentUser();
-		return categoryService.getByUser(user, FinancialRecordType.INCOME).stream()
+		UserId userId = UserUtils.currentUserId();
+		return categoryService.getByUserAndType(userId, FinancialRecordType.INCOME).stream()
 				.filter(category -> !category.isDeleted())
 				.map(Category::toDTO)
 				.toList();
@@ -44,8 +45,8 @@ public class CategoryController {
 
 	@GetMapping("/expense")
 	public List<CategoryDTO> getExpenseCategories() {
-		User user = UserUtils.currentUser();
-		return categoryService.getByUser(user, FinancialRecordType.EXPENSE).stream()
+		UserId userId = UserUtils.currentUserId();
+		return categoryService.getByUserAndType(userId, FinancialRecordType.EXPENSE).stream()
 				.filter(category -> !category.isDeleted())
 				.map(Category::toDTO)
 				.toList();
@@ -55,7 +56,7 @@ public class CategoryController {
 	@ResponseStatus(HttpStatus.OK)
 	public void save(@RequestBody List<CategoryDTO> categories) {
 		categories.forEach(updatedCategory -> {
-			categoryService.getById(updatedCategory.getId())
+			categoryService.getById(new CategoryId(updatedCategory.getId()))
 					.ifPresent(category -> {
 						category.setName(updatedCategory.getName());
 						category.setPriority(updatedCategory.getPriority());
@@ -65,35 +66,35 @@ public class CategoryController {
 	}
 
 	@PostMapping
-	public ResponseEntity<CategoryDTO> add(@RequestBody AddCategoryRequest addRequest) {
-		User user = UserUtils.currentUser();
+	public ResponseEntity<CategoryDTO> add(@RequestBody AddCategoryCommand command) {
+		UserId userId = UserUtils.currentUserId();
 
-		Optional<Category> categoryOptional = categoryService.getByUserAndTypeAndName(user, addRequest.getType(), addRequest.getName());
+		Optional<Category> categoryOptional = categoryService.getByUserAndTypeAndName(userId, command.getType(), command.getName());
 		if (categoryOptional.isPresent()) {
 			Category existingCategory = categoryOptional.get();
-			log.info("Category with name \"{}\" exists", addRequest.getName());
+			log.info("Category with name \"{}\" exists", command.getName());
 
 			if (existingCategory.isDeleted()) {
-				existingCategory.setName(addRequest.getName());
+				existingCategory.setName(command.getName());
 				existingCategory.setDeleted(false);
-				categoryService.getLast(existingCategory.getUser(), existingCategory.getType()).ifPresent(last -> {
+				categoryService.getLast(existingCategory.getUserId(), existingCategory.getType()).ifPresent(last -> {
 					existingCategory.setPriority(last.getPriority() + 1);
 				});
 				Category existingCategoryUpdated = categoryService.save(existingCategory);
-				categoryService.reorder(user, addRequest.getType());
+				categoryService.reorder(userId, command.getType());
 				return ResponseEntity.ok(existingCategoryUpdated.toDTO());
 			} else {
-				throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with name \"" + addRequest.getName() + "\" exists");
+				throw new ResponseStatusException(HttpStatus.CONFLICT, "Category with name \"" + command.getName() + "\" exists");
 			}
 		} else {
-			int lastCategoryPriority = categoryService.getLast(user, addRequest.getType())
+			int lastCategoryPriority = categoryService.getLast(userId, command.getType())
 					.map(Category::getPriority)
 					.orElse(1);
 
 			Category category = new Category();
-			category.setName(addRequest.getName());
-			category.setUser(user);
-			category.setType(addRequest.getType());
+			category.setName(command.getName());
+			category.setUserId(userId);
+			category.setType(command.getType());
 			category.setPriority(lastCategoryPriority + 1);
 
 			Category addedCategory = categoryService.save(category);
@@ -105,9 +106,9 @@ public class CategoryController {
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public void delete(@PathVariable long id) {
-		Category category = categoryService.getById(id)
+		Category category = categoryService.getById(new CategoryId(id))
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found."));
 
-		categoryService.delete(category.getId());
+		categoryService.delete(category.categoryId());
 	}
 }

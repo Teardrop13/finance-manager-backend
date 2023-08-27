@@ -15,17 +15,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.authentication.user.UserUtils;
+import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
+import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
+import pl.teardrop.financemanager.domain.category.service.CategoryService;
 import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.dto.FinancialRecordDTO;
 import pl.teardrop.financemanager.domain.financialrecord.dto.UpdateFinancialRecordCommand;
-import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
-import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
-import pl.teardrop.financemanager.domain.category.service.CategoryService;
-import pl.teardrop.financemanager.domain.financialrecord.service.FinancialRecordService;
-import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.financialrecord.exception.FinancialRecordNotFoundException;
+import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
+import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordId;
+import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
+import pl.teardrop.financemanager.domain.financialrecord.service.FinancialRecordService;
 
 import java.util.List;
 
@@ -39,54 +41,54 @@ public class FinancialRecordController {
 	private final CategoryService categoryService;
 
 	@GetMapping
-	public List<FinancialRecordDTO> get(@RequestParam int periodId,
+	public List<FinancialRecordDTO> get(@RequestParam long periodId,
 										@RequestParam FinancialRecordType type,
 										@RequestParam int page,
 										@RequestParam int pageSize,
 										@RequestParam String sortBy,
 										@RequestParam Boolean isAscending) {
-		User user = UserUtils.currentUser();
-		return recordService.getByUser(user,
-									   periodId,
+		UserId userId = UserUtils.currentUserId();
+		return recordService.getByUser(userId,
+									   new AccountingPeriodId(periodId),
 									   type,
 									   page,
 									   pageSize,
 									   sortBy != null ? sortBy : "transactionDate",
 									   isAscending != null ? isAscending : false).stream()
-				.map(FinancialRecord::toDTO)
+				.map(recordService::getDto)
 				.toList();
 	}
 
 	@GetMapping("/all")
 	public List<FinancialRecordDTO> getAll(@RequestParam int page,
 										   @RequestParam int pageSize) {
-		User user = UserUtils.currentUser();
-		return recordService.getByUser(user, page, pageSize).stream()
-				.map(FinancialRecord::toDTO)
+		UserId userId = UserUtils.currentUserId();
+		return recordService.getByUser(userId, page, pageSize).stream()
+				.map(recordService::getDto)
 				.toList();
 	}
 
 	@GetMapping("/count")
-	public Integer getCount(@RequestParam int periodId,
+	public Integer getCount(@RequestParam long periodId,
 							@RequestParam FinancialRecordType type) {
-		User user = UserUtils.currentUser();
-		return recordService.getRecordsCount(user, periodId, type);
+		UserId userId = UserUtils.currentUserId();
+		return recordService.getRecordsCount(userId, new AccountingPeriodId(periodId), type);
 	}
 
 	@GetMapping("/count/all")
 	public Integer getCount() {
-		User user = UserUtils.currentUser();
-		return recordService.getRecordsCount(user);
+		UserId userId = UserUtils.currentUserId();
+		return recordService.getRecordsCount(userId);
 	}
 
 	@GetMapping("/category/{category}")
 	public List<FinancialRecordDTO> getByCategory(@PathVariable(value = "category") String categoryText) {
-		User user = UserUtils.currentUser();
-		return categoryService.getByUser(user).stream()
+		UserId userId = UserUtils.currentUserId();
+		return categoryService.getByUser(userId).stream()
 				.filter(c -> c.getName().equals(categoryText))
 				.findFirst()
-				.map(category -> recordService.getByCategory(category).stream()
-						.map(FinancialRecord::toDTO)
+				.map(category -> recordService.getByCategory(category.categoryId()).stream()
+						.map(recordService::getDto)
 						.toList())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not retrieve user's FinancialRecords. Category not found: " + categoryText));
 	}
@@ -94,11 +96,11 @@ public class FinancialRecordController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public FinancialRecordDTO add(@Valid @RequestBody CreateFinancialRecordCommand createCommand) {
-		User user = UserUtils.currentUser();
+		UserId userId = UserUtils.currentUserId();
 
 		try {
-			FinancialRecord recordAdded = recordService.create(user, createCommand);
-			return recordAdded.toDTO();
+			FinancialRecord recordAdded = recordService.create(userId, createCommand);
+			return recordService.getDto(recordAdded);
 		} catch (CategoryNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category \"%s\" not found".formatted(createCommand.getCategory()));
 		}
@@ -118,7 +120,7 @@ public class FinancialRecordController {
 	@ResponseStatus(HttpStatus.OK)
 	public void delete(@PathVariable long id) {
 		try {
-			recordService.delete(id);
+			recordService.delete(new FinancialRecordId(id));
 		} catch (FinancialRecordNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FinancialRecord not found.");
 		}

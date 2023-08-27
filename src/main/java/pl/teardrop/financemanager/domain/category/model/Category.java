@@ -1,20 +1,19 @@
 package pl.teardrop.financemanager.domain.category.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.category.dto.CategoryDTO;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
@@ -28,9 +27,9 @@ public class Category {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "USER_ID", nullable = false)
-	private User user;
+	@Embedded
+	@AttributeOverride(name = "id", column = @Column(name = "USER_ID", nullable = false))
+	private UserId userId;
 
 	@JsonProperty("priority")
 	@Column(name = "PRIORITY", nullable = false)
@@ -50,5 +49,9 @@ public class Category {
 
 	public CategoryDTO toDTO() {
 		return new CategoryDTO(id, priority, name);
+	}
+
+	public CategoryId categoryId() {
+		return new CategoryId(getId());
 	}
 }

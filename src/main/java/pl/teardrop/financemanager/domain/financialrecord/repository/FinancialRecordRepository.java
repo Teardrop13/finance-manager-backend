@@ -1,14 +1,14 @@
 package pl.teardrop.financemanager.domain.financialrecord.repository;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import pl.teardrop.authentication.user.User;
-import pl.teardrop.financemanager.domain.category.model.Category;
+import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
+import pl.teardrop.financemanager.domain.category.model.CategoryId;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
@@ -18,38 +18,33 @@ import java.util.Optional;
 @Component
 public interface FinancialRecordRepository extends Repository<FinancialRecord, Long> {
 
-	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUser().getId() == authentication.principal.id : true")
-	Optional<FinancialRecord> findById(Long id);
+	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUserId().getId() == authentication.principal.id : true")
+	Optional<FinancialRecord> findById(long id);
 
-	@Query(value = "SELECT r "
-				   + "FROM FinancialRecord r "
-				   + "LEFT JOIN FETCH r.category "
-				   + "WHERE r.accountingPeriod.id = :periodId "
-				   + "AND r.type = :type")
-	@PostFilter("filterObject.getUser().getId() == authentication.principal.id")
-	List<FinancialRecord> findByPeriodIdAndType(long periodId, FinancialRecordType type);
+	@PostFilter("filterObject.getUserId().getId() == authentication.principal.id")
+	List<FinancialRecord> findByAccountingPeriodIdAndType(AccountingPeriodId accountingPeriodId, FinancialRecordType type);
 
-	@PreAuthorize("#user.getId() == authentication.principal.id")
-	List<FinancialRecord> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+	@PreAuthorize("#userId.getId() == authentication.principal.id")
+	List<FinancialRecord> findByUserIdOrderByCreatedAtDesc(UserId userId, Pageable pageable);
 
-	@PreAuthorize("#user.getId() == authentication.principal.id")
-	List<FinancialRecord> findByUserAndAccountingPeriodIdAndType(User user,
-																 long accountingPeriodId,
-																 FinancialRecordType type,
-																 Pageable pageable);
+	@PreAuthorize("#userId.getId() == authentication.principal.id")
+	List<FinancialRecord> findByUserIdAndAccountingPeriodIdAndType(UserId userId,
+																   AccountingPeriodId accountingPeriodId,
+																   FinancialRecordType type,
+																   Pageable pageable);
 
-	@PreAuthorize("#category.getUser().getId() == authentication.principal.id")
-	List<FinancialRecord> findByCategory(Category category);
+	@PreAuthorize("#category.getUserId().getId() == authentication.principal.id")
+	List<FinancialRecord> findByCategoryId(CategoryId categoryId);
 
-	@PreAuthorize("#financialRecord.getUser().getId() == authentication.principal.id")
+	@PreAuthorize("#financialRecord.getUserId().getId() == authentication.principal.id")
 	FinancialRecord save(FinancialRecord financialRecord);
 
-	@PreAuthorize("#financialRecord.getUser().getId() == authentication.principal.id")
+	@PreAuthorize("#financialRecord.getUserId().getId() == authentication.principal.id")
 	void delete(FinancialRecord financialRecord);
 
-	@PreAuthorize("#user.getId() == authentication.principal.id")
-	int countByUser(User user);
+	@PreAuthorize("#userId.getId() == authentication.principal.id")
+	int countByUserId(UserId userId);
 
-	@PreAuthorize("#user.getId() == authentication.principal.id")
-	int countByUserAndAccountingPeriodIdAndType(User user, long accountingPeriodId, FinancialRecordType type);
+	@PreAuthorize("#userId.getId() == authentication.principal.id")
+	int countByUserIdAndAccountingPeriodIdAndType(UserId userId, AccountingPeriodId accountingPeriodId, FinancialRecordType type);
 }

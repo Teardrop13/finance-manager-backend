@@ -5,17 +5,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import pl.teardrop.authentication.user.User;
-import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
-import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordCommand;
-import pl.teardrop.financemanager.domain.financialrecord.dto.UpdateFinancialRecordCommand;
+import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
+import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
+import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
+import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.category.model.Category;
+import pl.teardrop.financemanager.domain.category.model.CategoryId;
+import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordCommand;
+import pl.teardrop.financemanager.domain.financialrecord.dto.FinancialRecordDTO;
+import pl.teardrop.financemanager.domain.financialrecord.dto.UpdateFinancialRecordCommand;
+import pl.teardrop.financemanager.domain.financialrecord.exception.FinancialRecordNotFoundException;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
+import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordId;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 import pl.teardrop.financemanager.domain.financialrecord.repository.FinancialRecordRepository;
-import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
-import pl.teardrop.financemanager.domain.financialrecord.exception.FinancialRecordNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,9 +34,10 @@ public class FinancialRecordService {
 	private final FinancialRecordRepository recordRepository;
 	private final AccountingPeriodService accountingPeriodService;
 	private final FinancialRecordFactory financialRecordFactory;
+	private final CategoryService categoryService;
 
-	public List<FinancialRecord> getByUser(User user,
-										   int periodId,
+	public List<FinancialRecord> getByUser(UserId userId,
+										   AccountingPeriodId accountingPeriodId,
 										   FinancialRecordType type,
 										   int page,
 										   int pageSize,
@@ -40,40 +46,40 @@ public class FinancialRecordService {
 		Sort sort = Sort.by(sortBy);
 		sort = isAscending ? sort.ascending() : sort.descending();
 
-		return recordRepository.findByUserAndAccountingPeriodIdAndType(user, periodId, type, PageRequest.of(page, pageSize, sort));
+		return recordRepository.findByUserIdAndAccountingPeriodIdAndType(userId, accountingPeriodId, type, PageRequest.of(page, pageSize, sort));
 	}
 
-	public List<FinancialRecord> getByUser(User user, int page, int pageSize) {
-		return recordRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(page, pageSize));
+	public List<FinancialRecord> getByUser(UserId userId, int page, int pageSize) {
+		return recordRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, pageSize));
 	}
 
-	public Optional<FinancialRecord> getById(long id) {
-		return recordRepository.findById(id);
+	public Optional<FinancialRecord> getById(FinancialRecordId financialRecordId) {
+		return recordRepository.findById(financialRecordId.getId());
 	}
 
-	public List<FinancialRecord> getByCategory(Category category) {
-		return recordRepository.findByCategory(category);
+	public List<FinancialRecord> getByCategory(CategoryId categoryid) {
+		return recordRepository.findByCategoryId(categoryid);
 	}
 
-	public List<FinancialRecord> getByPeriodIdAndType(long periodId, FinancialRecordType type) {
-		return recordRepository.findByPeriodIdAndType(periodId, type);
+	public List<FinancialRecord> getByPeriodIdAndType(AccountingPeriodId periodId, FinancialRecordType type) {
+		return recordRepository.findByAccountingPeriodIdAndType(periodId, type);
 	}
 
-	public int getRecordsCount(User user) {
-		return recordRepository.countByUser(user);
+	public int getRecordsCount(UserId userId) {
+		return recordRepository.countByUserId(userId);
 	}
 
-	public int getRecordsCount(User user, int periodId, FinancialRecordType type) {
-		return recordRepository.countByUserAndAccountingPeriodIdAndType(user, periodId, type);
+	public int getRecordsCount(UserId userId, AccountingPeriodId periodId, FinancialRecordType type) {
+		return recordRepository.countByUserIdAndAccountingPeriodIdAndType(userId, periodId, type);
 	}
 
-	public FinancialRecord create(User user, CreateFinancialRecordCommand createCommand) throws CategoryNotFoundException {
-		FinancialRecord financialRecord = financialRecordFactory.getFinancialRecord(user, createCommand);
+	public FinancialRecord create(UserId userId, CreateFinancialRecordCommand createCommand) throws CategoryNotFoundException {
+		FinancialRecord financialRecord = financialRecordFactory.getFinancialRecord(userId, createCommand);
 		return save(financialRecord);
 	}
 
 	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException {
-		FinancialRecord financialRecord = getById(updateCommand.getRecordId())
+		FinancialRecord financialRecord = getById(new FinancialRecordId(updateCommand.getRecordId()))
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.getRecordId())));
 
 		financialRecord.setDescription(updateCommand.getDescription());
@@ -85,22 +91,32 @@ public class FinancialRecordService {
 		if (financialRecord.getId() == null) {
 			financialRecord.setCreatedAt(LocalDateTime.now());
 		}
-		AccountingPeriod period = accountingPeriodService.getByDate(financialRecord.getTransactionDate(), financialRecord.getUser());
-		financialRecord.setAccountingPeriod(period);
+		AccountingPeriod period = accountingPeriodService.getByDate(financialRecord.getTransactionDate(), financialRecord.getUserId());
+		financialRecord.setAccountingPeriodId(period.accountingPeriodId());
 		FinancialRecord financialRecordSaved = recordRepository.save(financialRecord);
-		log.info("Saved record id={}, userId={}", financialRecordSaved.getId(), financialRecordSaved.getUser().getId());
+		log.info("Saved record id={}, userId={}", financialRecordSaved.getId(), financialRecordSaved.getUserId().getId());
 		return financialRecordSaved;
 	}
 
-	public void delete(long id) throws FinancialRecordNotFoundException {
-		FinancialRecord financialRecord = getById(id)
-				.orElseThrow(() -> new FinancialRecordNotFoundException("FinancialRecord with id=%d not found.".formatted(id)));
+	public void delete(FinancialRecordId financialRecordId) throws FinancialRecordNotFoundException {
+		FinancialRecord financialRecord = getById(financialRecordId)
+				.orElseThrow(() -> new FinancialRecordNotFoundException("FinancialRecord with id=%d not found.".formatted(financialRecordId)));
 
 		delete(financialRecord);
 	}
 
 	public void delete(FinancialRecord financialRecord) {
 		recordRepository.delete(financialRecord);
-		log.info("Deleted record id={}, userId={}", financialRecord.getId(), financialRecord.getUser().getId());
+		log.info("Deleted record id={}, userId={}", financialRecord.getId(), financialRecord.getUserId().getId());
+	}
+
+	public FinancialRecordDTO getDto(FinancialRecord financialRecord) {
+		Category category = categoryService.getById(financialRecord.getCategoryId()).orElseThrow(() -> new RuntimeException("Cannot create FinancialRecordDto. Category not found for categoryId=" + financialRecord.getCategoryId().getId()));
+		return new FinancialRecordDTO(financialRecord.getId(),
+									  financialRecord.getDescription(),
+									  financialRecord.getAmount(),
+									  category.getName(),
+									  financialRecord.getType(),
+									  financialRecord.getTransactionDate());
 	}
 }

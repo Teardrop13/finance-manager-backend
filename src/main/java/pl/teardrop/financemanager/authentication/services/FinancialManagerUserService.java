@@ -21,7 +21,7 @@ public class FinancialManagerUserService extends DefaultUserService implements U
 	@Override
 	public User create(String username, String password, String email) {
 		User userAdded = super.create(username, password, email);
-		categoryService.addDefaultCategorires(userAdded);
+		categoryService.addDefaultCategorires(userAdded.userId());
 		return userAdded;
 	}
 }

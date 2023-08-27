@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.authentication.user.UserUtils;
 import pl.teardrop.financemanager.domain.accountingperiod.dto.AccountingPeriodDTO;
+import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
 
 @RestController
@@ -21,20 +22,20 @@ public class AccountingPeriodController {
 
 	@GetMapping("/current")
 	public AccountingPeriodDTO getCurrent() {
-		User user = UserUtils.currentUser();
-		return accountingPeriodService.getCurrent(user).toDTO();
+		UserId userId = UserUtils.currentUserId();
+		return accountingPeriodService.getCurrent(userId).toDTO();
 	}
 
 	@GetMapping("/next")
 	public AccountingPeriodDTO getNext(@RequestParam long currentId) {
-		User user = UserUtils.currentUser();
-		return accountingPeriodService.getNext(currentId, user).toDTO();
+		UserId userId = UserUtils.currentUserId();
+		return accountingPeriodService.getNext(new AccountingPeriodId(currentId), userId).toDTO();
 	}
 
 	@GetMapping("/previous")
 	public AccountingPeriodDTO getPrevious(@RequestParam Long currentId) {
-		User user = UserUtils.currentUser();
-		return accountingPeriodService.getPrevious(currentId, user).toDTO();
+		UserId userId = UserUtils.currentUserId();
+		return accountingPeriodService.getPrevious(new AccountingPeriodId(currentId), userId).toDTO();
 	}
 
 }

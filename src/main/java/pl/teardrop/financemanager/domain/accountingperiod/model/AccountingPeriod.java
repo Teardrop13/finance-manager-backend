@@ -1,17 +1,16 @@
 package pl.teardrop.financemanager.domain.accountingperiod.model;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import pl.teardrop.authentication.user.User;
+import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.dto.AccountingPeriodDTO;
 
 import java.time.LocalDate;
@@ -26,9 +25,9 @@ public class AccountingPeriod {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "USER_ID", nullable = false)
-	private User user;
+	@Embedded
+	@AttributeOverride(name = "id", column = @Column(name = "USER_ID", nullable = false))
+	private UserId userId;
 
 	@Column(name = "STARTS_ON", nullable = false)
 	private LocalDate startsOn;
@@ -36,8 +35,11 @@ public class AccountingPeriod {
 	@Column(name = "ENDS_ON", nullable = false)
 	private LocalDate endsOn;
 
+	public AccountingPeriodId accountingPeriodId() {
+		return new AccountingPeriodId(getId());
+	}
+
 	public AccountingPeriodDTO toDTO() {
 		return new AccountingPeriodDTO(id, startsOn, endsOn);
 	}
-
 }

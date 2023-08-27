@@ -1,22 +1,20 @@
 package pl.teardrop.financemanager.domain.financialrecord.model;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import pl.teardrop.authentication.user.User;
-import pl.teardrop.financemanager.domain.category.model.Category;
-import pl.teardrop.financemanager.domain.financialrecord.dto.FinancialRecordDTO;
-import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
+import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
+import pl.teardrop.financemanager.domain.category.model.CategoryId;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,17 +30,17 @@ public class FinancialRecord {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "USER_ID", nullable = false)
-	private User user;
+	@Embedded
+	@AttributeOverride(name = "id", column = @Column(name = "USER_ID", nullable = false))
+	private UserId userId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "CATEGORY_ID", nullable = false)
-	private Category category;
+	@Embedded
+	@AttributeOverride(name = "id", column = @Column(name = "CATEGORY_ID", nullable = false))
+	private CategoryId categoryId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ACCOUNTING_PERIOD_ID", nullable = false)
-	private AccountingPeriod accountingPeriod;
+	@Embedded
+	@AttributeOverride(name = "id", column = @Column(name = "ACCOUNTING_PERIOD_ID", nullable = false))
+	private AccountingPeriodId accountingPeriodId;
 
 	@Column(name = "DESCRIPTION")
 	private String description;
@@ -60,12 +58,7 @@ public class FinancialRecord {
 	@Enumerated(EnumType.STRING)
 	private FinancialRecordType type;
 
-	public FinancialRecordDTO toDTO() {
-		return new FinancialRecordDTO(id,
-									  description,
-									  amount,
-									  category.getName(),
-									  type,
-									  transactionDate);
+	public FinancialRecordId financialRecordId() {
+		return new FinancialRecordId(getId());
 	}
 }

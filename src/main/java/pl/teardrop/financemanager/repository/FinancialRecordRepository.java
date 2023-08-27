@@ -31,10 +31,10 @@ public interface FinancialRecordRepository extends Repository<FinancialRecord, L
 	List<FinancialRecord> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 
 	@PreAuthorize("#user.getId() == authentication.principal.id")
-	List<FinancialRecord> findByUserAndAccountingPeriodIdAndTypeOrderByCreatedAtDesc(User user,
-																					 int accountingPeriodId,
-																					 FinancialRecordType type,
-																					 Pageable pageable);
+	List<FinancialRecord> findByUserAndAccountingPeriodIdAndTypeOrderByTransactionDateDesc(User user,
+																						   int accountingPeriodId,
+																						   FinancialRecordType type,
+																						   Pageable pageable);
 
 	@PreAuthorize("#category.getUser().getId() == authentication.principal.id")
 	List<FinancialRecord> findByCategory(Category category);

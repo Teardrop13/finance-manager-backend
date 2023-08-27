@@ -33,7 +33,7 @@ public class FinancialRecordService {
 										   int page,
 										   int pageSize) {
 		// todo sorting
-		return recordRepository.findByUserAndAccountingPeriodIdAndTypeOrderByCreatedAtDesc(user, periodId, type, PageRequest.of(page, pageSize));
+		return recordRepository.findByUserAndAccountingPeriodIdAndTypeOrderByTransactionDateDesc(user, periodId, type, PageRequest.of(page, pageSize));
 	}
 
 	public List<FinancialRecord> getByUser(User user, int page, int pageSize) {

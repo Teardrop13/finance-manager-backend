@@ -91,11 +91,12 @@ public class CategoryController {
 					.map(Category::getPriority)
 					.orElse(1);
 
-			Category category = new Category();
-			category.setName(command.getName());
-			category.setUserId(userId);
-			category.setType(command.getType());
-			category.setPriority(lastCategoryPriority + 1);
+			Category category = Category.builder()
+					.name(command.getName())
+					.userId(userId)
+					.type(command.getType())
+					.priority(lastCategoryPriority + 1)
+					.build();
 
 			Category addedCategory = categoryService.save(category);
 

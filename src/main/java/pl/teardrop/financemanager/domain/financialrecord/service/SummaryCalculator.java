@@ -9,6 +9,7 @@ import pl.teardrop.financemanager.domain.category.model.CategoryId;
 import pl.teardrop.financemanager.domain.category.service.CategoryService;
 import pl.teardrop.financemanager.domain.financialrecord.model.CategorySummary;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
+import pl.teardrop.financemanager.domain.financialrecord.model.RecordTypeSummary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,14 @@ public class SummaryCalculator {
 									   .map(r -> new CategorySummary(r.getAmount(), categoriesById.get(r.getCategoryId())))
 									   .collect(Collectors.groupingBy(CategorySummary::category,
 																	  Collectors.reducing(CategorySummary.ZERO, CategorySummary::add)))
+									   .values());
+	}
+
+	public List<RecordTypeSummary> getSummaryByRecordType(AccountingPeriodId periodId) {
+		return new ArrayList<>(financialRecordService.getByPeriodId(periodId).stream()
+									   .map(r -> new RecordTypeSummary(r.getAmount(), r.getType()))
+									   .collect(Collectors.groupingBy(RecordTypeSummary::type,
+																	  Collectors.reducing(RecordTypeSummary.ZERO, RecordTypeSummary::add)))
 									   .values());
 	}
 }

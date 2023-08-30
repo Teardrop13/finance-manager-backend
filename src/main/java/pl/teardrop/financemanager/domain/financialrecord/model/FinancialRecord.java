@@ -10,7 +10,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
@@ -24,6 +28,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "FM_RECORD")
+@NoArgsConstructor
+@Builder()
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FinancialRecord {
 
 	@Id

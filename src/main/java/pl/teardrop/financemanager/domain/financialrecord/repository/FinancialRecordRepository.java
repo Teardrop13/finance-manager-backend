@@ -29,6 +29,9 @@ public interface FinancialRecordRepository extends Repository<FinancialRecord, L
 																   FinancialRecordType type,
 																   Pageable pageable);
 
+	@PostFilter("filterObject.getUserId().getId() == authentication.principal.id")
+	List<FinancialRecord> findByAccountingPeriodId(AccountingPeriodId periodId);
+
 	@PreAuthorize("#financialRecord.getUserId().getId() == authentication.principal.id")
 	FinancialRecord save(FinancialRecord financialRecord);
 

@@ -56,6 +56,10 @@ public class FinancialRecordService {
 		return recordRepository.findByAccountingPeriodIdAndType(periodId, type);
 	}
 
+	public List<FinancialRecord> getByPeriodId(AccountingPeriodId periodId) {
+		return recordRepository.findByAccountingPeriodId(periodId);
+	}
+
 	public int getRecordsCount(UserId userId, AccountingPeriodId periodId, FinancialRecordType type) {
 		return recordRepository.countByUserIdAndAccountingPeriodIdAndType(userId, periodId, type);
 	}
@@ -67,7 +71,7 @@ public class FinancialRecordService {
 
 	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException {
 		FinancialRecord financialRecord = getById(updateCommand.getRecordId())
-				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.getRecordId())));
+				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.getRecordId().getId())));
 
 		financialRecord.setDescription(updateCommand.getDescription());
 		financialRecord.setAmount(updateCommand.getAmount());
@@ -87,7 +91,7 @@ public class FinancialRecordService {
 
 	public void delete(FinancialRecordId financialRecordId) throws FinancialRecordNotFoundException {
 		FinancialRecord financialRecord = getById(financialRecordId)
-				.orElseThrow(() -> new FinancialRecordNotFoundException("FinancialRecord with id=%d not found.".formatted(financialRecordId)));
+				.orElseThrow(() -> new FinancialRecordNotFoundException("FinancialRecord with id=%d not found.".formatted(financialRecordId.getId())));
 
 		delete(financialRecord);
 	}

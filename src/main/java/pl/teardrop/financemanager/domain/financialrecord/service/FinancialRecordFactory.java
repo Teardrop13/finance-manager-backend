@@ -23,15 +23,15 @@ public class FinancialRecordFactory {
 
 		AccountingPeriod period = accountingPeriodService.getByDate(command.getTransactionDate(), command.getUserId());
 
-		FinancialRecord financialRecord = new FinancialRecord();
-		financialRecord.setUserId(command.getUserId());
-		financialRecord.setDescription(command.getDescription());
-		financialRecord.setAmount(command.getAmount());
-		financialRecord.setTransactionDate(command.getTransactionDate());
-		financialRecord.setType(command.getType());
-		financialRecord.setCategoryId(category.categoryId());
-		financialRecord.setAccountingPeriodId(period.accountingPeriodId());
-		return financialRecord;
+		return FinancialRecord.builder()
+				.userId(command.getUserId())
+				.description(command.getDescription())
+				.amount(command.getAmount())
+				.transactionDate(command.getTransactionDate())
+				.type(command.getType())
+				.categoryId(category.categoryId())
+				.accountingPeriodId(period.accountingPeriodId())
+				.build();
 	}
 
 }

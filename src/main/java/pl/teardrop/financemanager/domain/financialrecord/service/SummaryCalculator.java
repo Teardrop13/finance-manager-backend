@@ -2,16 +2,18 @@ package pl.teardrop.financemanager.domain.financialrecord.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
 import pl.teardrop.financemanager.domain.category.service.CategoryService;
-import pl.teardrop.financemanager.domain.financialrecord.dto.SummaryDTO;
-import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
+import pl.teardrop.financemanager.domain.financialrecord.model.CategorySummary;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,18 +23,13 @@ public class SummaryCalculator {
 	private final FinancialRecordService financialRecordService;
 	private final CategoryService categoryService;
 
-	public List<SummaryDTO> getSummary(AccountingPeriodId periodId, FinancialRecordType type) {
-		return financialRecordService.getByPeriodIdAndType(periodId, type).stream()
-				.collect(Collectors.groupingBy(FinancialRecord::getCategoryId,
-											   Collectors.reducing(BigDecimal.ZERO, FinancialRecord::getAmount, BigDecimal::add)))
-				.entrySet().stream()
-				.map(mapEntry -> {
-					CategoryId categoryId = mapEntry.getKey();
-					BigDecimal amount = mapEntry.getValue();
-					Category category = categoryService.getById(categoryId).orElseThrow(() -> new RuntimeException("Category not found for id=" + categoryId.getId()));
-					return new SummaryDTO(amount, category.getName());
-				})
-				.toList();
-	}
+	public List<CategorySummary> getSummaryByCategory(UserId userId, AccountingPeriodId periodId, FinancialRecordType type) {
+		Map<CategoryId, Category> categoriesById = categoryService.getByUserAndType(userId, type).stream().collect(Collectors.toMap(Category::categoryId, Function.identity()));
 
+		return new ArrayList<>(financialRecordService.getByPeriodIdAndType(periodId, type).stream()
+									   .map(r -> new CategorySummary(r.getAmount(), categoriesById.get(r.getCategoryId())))
+									   .collect(Collectors.groupingBy(CategorySummary::category,
+																	  Collectors.reducing(CategorySummary.ZERO, CategorySummary::add)))
+									   .values());
+	}
 }

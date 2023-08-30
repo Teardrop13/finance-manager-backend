@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import pl.teardrop.authentication.user.UserId;
@@ -21,6 +22,7 @@ import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordTy
 @Getter
 @Setter
 @Table(name = "FM_CATEGORY")
+@EqualsAndHashCode
 public class Category {
 
 	@Id

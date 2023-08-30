@@ -11,7 +11,6 @@ import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
 import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.category.model.Category;
-import pl.teardrop.financemanager.domain.category.model.CategoryId;
 import pl.teardrop.financemanager.domain.category.service.CategoryService;
 import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.dto.FinancialRecordDTO;
@@ -36,50 +35,38 @@ public class FinancialRecordService {
 	private final FinancialRecordFactory financialRecordFactory;
 	private final CategoryService categoryService;
 
-	public List<FinancialRecord> getByUser(UserId userId,
-										   AccountingPeriodId accountingPeriodId,
-										   FinancialRecordType type,
-										   int page,
-										   int pageSize,
-										   String sortBy,
-										   boolean isAscending) {
+	public List<FinancialRecord> getPage(UserId userId,
+										 AccountingPeriodId accountingPeriodId,
+										 FinancialRecordType type,
+										 int page,
+										 int pageSize,
+										 String sortBy,
+										 boolean isAscending) {
 		Sort sort = Sort.by(sortBy);
 		sort = isAscending ? sort.ascending() : sort.descending();
 
 		return recordRepository.findByUserIdAndAccountingPeriodIdAndType(userId, accountingPeriodId, type, PageRequest.of(page, pageSize, sort));
 	}
 
-	public List<FinancialRecord> getByUser(UserId userId, int page, int pageSize) {
-		return recordRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, pageSize));
-	}
-
 	public Optional<FinancialRecord> getById(FinancialRecordId financialRecordId) {
 		return recordRepository.findById(financialRecordId.getId());
-	}
-
-	public List<FinancialRecord> getByCategory(CategoryId categoryid) {
-		return recordRepository.findByCategoryId(categoryid);
 	}
 
 	public List<FinancialRecord> getByPeriodIdAndType(AccountingPeriodId periodId, FinancialRecordType type) {
 		return recordRepository.findByAccountingPeriodIdAndType(periodId, type);
 	}
 
-	public int getRecordsCount(UserId userId) {
-		return recordRepository.countByUserId(userId);
-	}
-
 	public int getRecordsCount(UserId userId, AccountingPeriodId periodId, FinancialRecordType type) {
 		return recordRepository.countByUserIdAndAccountingPeriodIdAndType(userId, periodId, type);
 	}
 
-	public FinancialRecord create(UserId userId, CreateFinancialRecordCommand createCommand) throws CategoryNotFoundException {
-		FinancialRecord financialRecord = financialRecordFactory.getFinancialRecord(userId, createCommand);
+	public FinancialRecord create(CreateFinancialRecordCommand createCommand) throws CategoryNotFoundException {
+		FinancialRecord financialRecord = financialRecordFactory.getFinancialRecord(createCommand);
 		return save(financialRecord);
 	}
 
 	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException {
-		FinancialRecord financialRecord = getById(new FinancialRecordId(updateCommand.getRecordId()))
+		FinancialRecord financialRecord = getById(updateCommand.getRecordId())
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.getRecordId())));
 
 		financialRecord.setDescription(updateCommand.getDescription());

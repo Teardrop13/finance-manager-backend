@@ -8,7 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
-import pl.teardrop.financemanager.domain.category.model.CategoryId;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
@@ -25,25 +24,16 @@ public interface FinancialRecordRepository extends Repository<FinancialRecord, L
 	List<FinancialRecord> findByAccountingPeriodIdAndType(AccountingPeriodId accountingPeriodId, FinancialRecordType type);
 
 	@PreAuthorize("#userId.getId() == authentication.principal.id")
-	List<FinancialRecord> findByUserIdOrderByCreatedAtDesc(UserId userId, Pageable pageable);
-
-	@PreAuthorize("#userId.getId() == authentication.principal.id")
 	List<FinancialRecord> findByUserIdAndAccountingPeriodIdAndType(UserId userId,
 																   AccountingPeriodId accountingPeriodId,
 																   FinancialRecordType type,
 																   Pageable pageable);
-
-	@PreAuthorize("#category.getUserId().getId() == authentication.principal.id")
-	List<FinancialRecord> findByCategoryId(CategoryId categoryId);
 
 	@PreAuthorize("#financialRecord.getUserId().getId() == authentication.principal.id")
 	FinancialRecord save(FinancialRecord financialRecord);
 
 	@PreAuthorize("#financialRecord.getUserId().getId() == authentication.principal.id")
 	void delete(FinancialRecord financialRecord);
-
-	@PreAuthorize("#userId.getId() == authentication.principal.id")
-	int countByUserId(UserId userId);
 
 	@PreAuthorize("#userId.getId() == authentication.principal.id")
 	int countByUserIdAndAccountingPeriodIdAndType(UserId userId, AccountingPeriodId accountingPeriodId, FinancialRecordType type);

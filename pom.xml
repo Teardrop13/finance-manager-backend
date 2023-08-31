@@ -13,7 +13,7 @@
     <version>0.1</version>
     <name>finance-manager</name>
     <properties>
-        <java.version>17</java.version>
+        <java.version>20</java.version>
         <authentication.version>0.3</authentication.version>
     </properties>
 

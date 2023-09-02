@@ -100,9 +100,9 @@ public class CategoryService {
 
 	@PreAuthorize("@categoryAccessTest.test(#categoryId, authentication)")
 	public void delete(CategoryId categoryId) {
-		categoryRepository.findById(categoryId.getId()).ifPresent(category -> {
+		getById(categoryId).ifPresent(category -> {
 			category.setDeleted(true);
-			categoryRepository.save(category);
+			save(category);
 			log.info("Category marked deleted id={}, userId={}", category.getId(), category.getUserId().getId());
 			reorder(category.getUserId(), category.getType());
 		});

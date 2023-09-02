@@ -1,11 +1,11 @@
 package pl.teardrop.financemanager.domain.financialrecord.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,20 +43,24 @@ class AnalysisControllerTest {
 	@MockBean
 	private Authentication authentication;
 
+	private final UserId USER_ID = new UserId(1L);
+
+	@BeforeEach
+	void setUp() {
+		when(authentication.getPrincipal()).thenReturn(User.builder().id(USER_ID.getId()).build());
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+
 	@Test
 	void getSummaryByCategory() throws Exception {
 		long periodId = 1;
-		long userId = 1;
 		FinancialRecordType recordType = FinancialRecordType.EXPENSE;
 		String categoryName = "house";
 		Category category = Category.builder()
 				.name(categoryName)
 				.build();
 
-		when(authentication.getPrincipal()).thenReturn(User.builder().id(userId).build());
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-
-		when(summaryCalculator.getSummaryByCategory(new UserId(userId), new AccountingPeriodId(periodId), recordType))
+		when(summaryCalculator.getSummaryByCategory(USER_ID, new AccountingPeriodId(periodId), recordType))
 				.thenReturn(List.of(new CategorySummary(new BigDecimal("15.30"), category)));
 
 		mvc.perform(MockMvcRequestBuilders.get("/api/analysis/summary/category")

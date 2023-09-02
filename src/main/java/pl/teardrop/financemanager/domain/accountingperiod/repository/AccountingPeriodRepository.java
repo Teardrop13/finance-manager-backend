@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
 
@@ -12,7 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@org.springframework.stereotype.Repository
 public interface AccountingPeriodRepository extends Repository<AccountingPeriod, Long> {
 
 	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUserId().getId() == authentication.principal.id : true")

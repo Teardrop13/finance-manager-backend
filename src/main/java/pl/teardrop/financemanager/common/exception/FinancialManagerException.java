@@ -1,4 +1,4 @@
-package pl.teardrop.financemanager.domain.financialrecord.exception;
+package pl.teardrop.financemanager.common.exception;
 
 public class FinancialManagerException extends Exception {
 

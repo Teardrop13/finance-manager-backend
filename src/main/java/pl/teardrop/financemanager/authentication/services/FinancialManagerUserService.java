@@ -6,22 +6,24 @@ import pl.teardrop.authentication.user.DefaultUserService;
 import pl.teardrop.authentication.user.User;
 import pl.teardrop.authentication.user.UserRepository;
 import pl.teardrop.authentication.user.UserService;
-import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.DefaultCategoriesService;
 
 public class FinancialManagerUserService extends DefaultUserService implements UserService {
 
-	private final CategoryService categoryService;
+	private final DefaultCategoriesService defaultCategoriesService;
 
 	@Autowired
-	public FinancialManagerUserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CategoryService categoryService) {
+	public FinancialManagerUserService(UserRepository userRepository,
+									   PasswordEncoder passwordEncoder,
+									   DefaultCategoriesService defaultCategoriesService) {
 		super(userRepository, passwordEncoder);
-		this.categoryService = categoryService;
+		this.defaultCategoriesService = defaultCategoriesService;
 	}
 
 	@Override
 	public User create(String username, String password, String email) {
 		User userAdded = super.create(username, password, email);
-		categoryService.addDefaultCategorires(userAdded.userId());
+		defaultCategoriesService.addDefaults(userAdded.userId());
 		return userAdded;
 	}
 }

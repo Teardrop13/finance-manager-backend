@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.teardrop.authentication.user.UserRepository;
 import pl.teardrop.authentication.user.UserService;
 import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.DefaultCategoriesService;
 
 @Configuration
 public class AuthenticationConfiguration {
@@ -14,8 +15,8 @@ public class AuthenticationConfiguration {
 	@Bean
 	public UserService userService(UserRepository userRepository,
 								   @Lazy PasswordEncoder passwordEncoder,
-								   CategoryService categoryService) {
-		return new FinancialManagerUserService(userRepository, passwordEncoder, categoryService);
+								   DefaultCategoriesService defaultCategoriesService) {
+		return new FinancialManagerUserService(userRepository, passwordEncoder, defaultCategoriesService);
 	}
 
 }

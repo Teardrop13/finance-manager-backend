@@ -5,7 +5,6 @@ import org.springframework.data.repository.Repository;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
@@ -14,7 +13,7 @@ import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordTy
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@org.springframework.stereotype.Repository
 public interface FinancialRecordRepository extends Repository<FinancialRecord, Long> {
 
 	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUserId().getId() == authentication.principal.id : true")

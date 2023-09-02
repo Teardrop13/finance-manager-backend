@@ -3,7 +3,6 @@ package pl.teardrop.financemanager.domain.category.repository;
 import org.springframework.data.repository.Repository;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
@@ -11,7 +10,7 @@ import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordTy
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@org.springframework.stereotype.Repository
 public interface CategoryRepository extends Repository<Category, Long> {
 
 	@PostAuthorize("returnObject.isPresent() ? returnObject.get().getUserId().getId() == authentication.principal.id : true")

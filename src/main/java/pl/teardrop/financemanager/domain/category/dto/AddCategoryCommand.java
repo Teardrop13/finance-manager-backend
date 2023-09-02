@@ -1,15 +1,15 @@
 package pl.teardrop.financemanager.domain.category.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class AddCategoryCommand {
+public record AddCategoryCommand(UserId userId,
+								 String name,
+								 FinancialRecordType type) {
 
-	private String name;
-	private FinancialRecordType type;
+	public AddCategoryCommand(UserId userId, AddCategoryRequest request) {
+		this(userId,
+			 request.name(),
+			 request.type());
+	}
 }

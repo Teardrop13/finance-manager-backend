@@ -1,12 +1,8 @@
 package pl.teardrop.financemanager.domain.financialrecord.dto;
 
-import lombok.Value;
-
 import java.util.List;
 
-@Value
-public class FinancialRecordsHistoryDto {
+public record FinancialRecordsHistoryDto(int count,
+										 List<FinancialRecordDTO> records) {
 
-	int count;
-	List<FinancialRecordDTO> records;
 }

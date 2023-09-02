@@ -70,11 +70,11 @@ public class FinancialRecordService {
 	}
 
 	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException {
-		FinancialRecord financialRecord = getById(updateCommand.getRecordId())
-				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.getRecordId().getId())));
+		FinancialRecord financialRecord = getById(updateCommand.recordId())
+				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.recordId().getId())));
 
-		financialRecord.setDescription(updateCommand.getDescription());
-		financialRecord.setAmount(updateCommand.getAmount());
+		financialRecord.setDescription(updateCommand.description());
+		financialRecord.setAmount(updateCommand.amount());
 		return save(financialRecord);
 	}
 

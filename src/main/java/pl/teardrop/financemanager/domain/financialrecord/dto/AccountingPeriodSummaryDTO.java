@@ -11,6 +11,7 @@ public record AccountingPeriodSummaryDTO(BigDecimal income,
 										 LocalDate startsOn,
 										 @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 										 LocalDate endsOn,
-										 Long accountingPeriodId) {
+										 Long accountingPeriodId
+) {
 
 }

@@ -18,17 +18,17 @@ public class FinancialRecordFactory {
 	private final AccountingPeriodService accountingPeriodService;
 
 	public FinancialRecord getFinancialRecord(CreateFinancialRecordCommand command) throws CategoryNotFoundException {
-		Category category = categoryService.getByUserAndTypeAndName(command.getUserId(), command.getType(), command.getCategory())
-				.orElseThrow(() -> new CategoryNotFoundException("Failed to create FinancialRecord. Category " + command.getCategory() + " not found for userId=" + command.getUserId().getId()));
+		Category category = categoryService.getByUserAndTypeAndName(command.userId(), command.type(), command.category())
+				.orElseThrow(() -> new CategoryNotFoundException("Failed to create FinancialRecord. Category " + command.category() + " not found for userId=" + command.userId().getId()));
 
-		AccountingPeriod period = accountingPeriodService.getByDate(command.getTransactionDate(), command.getUserId());
+		AccountingPeriod period = accountingPeriodService.getByDate(command.transactionDate(), command.userId());
 
 		return FinancialRecord.builder()
-				.userId(command.getUserId())
-				.description(command.getDescription())
-				.amount(command.getAmount())
-				.transactionDate(command.getTransactionDate())
-				.type(command.getType())
+				.userId(command.userId())
+				.description(command.description())
+				.amount(command.amount())
+				.transactionDate(command.transactionDate())
+				.type(command.type())
 				.categoryId(category.categoryId())
 				.accountingPeriodId(period.accountingPeriodId())
 				.build();

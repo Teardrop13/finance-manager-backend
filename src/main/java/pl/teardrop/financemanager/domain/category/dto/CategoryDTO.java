@@ -1,17 +1,9 @@
 package pl.teardrop.financemanager.domain.category.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public record CategoryDTO(
+		Long id,
+		Integer priority,
+		String name
+) {
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class CategoryDTO {
-
-	private Long id;
-	private Integer priority;
-	private String name;
 }

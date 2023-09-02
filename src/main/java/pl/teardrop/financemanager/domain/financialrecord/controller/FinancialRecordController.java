@@ -81,7 +81,7 @@ public class FinancialRecordController {
 					.body(recordService.getDto(recordAdded));
 		} catch (CategoryNotFoundException e) {
 			log.error("Failed to create new FinancialRecord", e);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category \"%s\" not found".formatted(request.getCategory()));
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category \"%s\" not found".formatted(request.category()));
 		}
 	}
 

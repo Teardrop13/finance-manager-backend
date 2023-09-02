@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.common.FinancialManagerEntity;
-import pl.teardrop.financemanager.domain.accountingperiod.dto.AccountingPeriodDTO;
 
 import java.time.LocalDate;
 
@@ -45,9 +44,5 @@ public class AccountingPeriod implements FinancialManagerEntity {
 
 	public AccountingPeriodId accountingPeriodId() {
 		return new AccountingPeriodId(getId());
-	}
-
-	public AccountingPeriodDTO toDTO() {
-		return new AccountingPeriodDTO(id, startsOn, endsOn);
 	}
 }

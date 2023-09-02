@@ -11,10 +11,7 @@ import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
 import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
-import pl.teardrop.financemanager.domain.category.model.Category;
-import pl.teardrop.financemanager.domain.category.service.CategoryService;
 import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordCommand;
-import pl.teardrop.financemanager.domain.financialrecord.dto.FinancialRecordDTO;
 import pl.teardrop.financemanager.domain.financialrecord.dto.UpdateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.exception.FinancialRecordNotFoundException;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
@@ -34,7 +31,6 @@ public class FinancialRecordService {
 	private final FinancialRecordRepository recordRepository;
 	private final AccountingPeriodService accountingPeriodService;
 	private final FinancialRecordFactory financialRecordFactory;
-	private final CategoryService categoryService;
 
 	@PreAuthorize("#userId.getId() == authentication.principal.getId() "
 				  + "&& @accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
@@ -108,15 +104,5 @@ public class FinancialRecordService {
 
 		recordRepository.delete(financialRecord);
 		log.info("Deleted record id={}, userId={}", financialRecord.getId(), financialRecord.getUserId().getId());
-	}
-
-	public FinancialRecordDTO getDto(FinancialRecord financialRecord) {
-		Category category = categoryService.getById(financialRecord.getCategoryId()).orElseThrow(() -> new RuntimeException("Cannot create FinancialRecordDto. Category not found for categoryId=" + financialRecord.getCategoryId().getId()));
-		return new FinancialRecordDTO(financialRecord.getId(),
-									  financialRecord.getDescription(),
-									  financialRecord.getAmount(),
-									  category.getName(),
-									  financialRecord.getType(),
-									  financialRecord.getTransactionDate());
 	}
 }

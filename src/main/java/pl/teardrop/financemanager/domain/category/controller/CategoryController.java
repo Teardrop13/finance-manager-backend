@@ -1,6 +1,6 @@
 package pl.teardrop.financemanager.domain.category.controller;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,7 @@ import pl.teardrop.financemanager.domain.category.dto.CategoryDTO;
 import pl.teardrop.financemanager.domain.category.exception.CategoryExistException;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
+import pl.teardrop.financemanager.domain.category.service.CategoryMapper;
 import pl.teardrop.financemanager.domain.category.service.CategoryService;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
@@ -28,12 +29,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequiredArgsConstructor
+@AllArgsConstructor
 @RequestMapping("/api/categories")
 @Slf4j
 public class CategoryController {
 
 	private final CategoryService categoryService;
+	private final CategoryMapper categoryMapper;
 
 	@GetMapping("/{type}")
 	public ResponseEntity<Object> getCategories(@PathVariable("type") String typeTextValue) {
@@ -41,13 +43,14 @@ public class CategoryController {
 
 		try {
 			FinancialRecordType type = FinancialRecordType.getByTextValue(typeTextValue);
-			return ResponseEntity.ok(categoryService.getNotDeletedByUserAndType(userId, type).stream()
-											 .map(Category::toDTO)
-											 .toList());
+			List<Category> categories = categoryService.getNotDeletedByUserAndType(userId, type);
+			List<CategoryDTO> categoriesDTO = categories.stream()
+					.map(categoryMapper::toDTO)
+					.toList();
+			return ResponseEntity.ok(categoriesDTO);
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
-
 	}
 
 	@PutMapping
@@ -71,7 +74,7 @@ public class CategoryController {
 
 		try {
 			Category category = categoryService.create(command);
-			return ResponseEntity.ok(category.toDTO());
+			return ResponseEntity.ok(categoryMapper.toDTO(category));
 		} catch (CategoryExistException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}

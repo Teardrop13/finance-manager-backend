@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.common.FinancialManagerEntity;
-import pl.teardrop.financemanager.domain.category.dto.CategoryDTO;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
 @Entity
@@ -56,10 +55,6 @@ public class Category implements FinancialManagerEntity {
 	@Column(name = "TYPE", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private FinancialRecordType type;
-
-	public CategoryDTO toDTO() {
-		return new CategoryDTO(id, priority, name);
-	}
 
 	public CategoryId categoryId() {
 		return new CategoryId(getId());

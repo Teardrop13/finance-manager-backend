@@ -21,13 +21,14 @@ import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundExce
 import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordRequest;
 import pl.teardrop.financemanager.domain.financialrecord.dto.FinancialRecordDTO;
-import pl.teardrop.financemanager.domain.financialrecord.dto.FinancialRecordsHistoryDto;
+import pl.teardrop.financemanager.domain.financialrecord.dto.FinancialRecordsHistoryDTO;
 import pl.teardrop.financemanager.domain.financialrecord.dto.UpdateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.dto.UpdateFinancialRecordRequest;
 import pl.teardrop.financemanager.domain.financialrecord.exception.FinancialRecordNotFoundException;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordId;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
+import pl.teardrop.financemanager.domain.financialrecord.service.FinancialRecordMapper;
 import pl.teardrop.financemanager.domain.financialrecord.service.FinancialRecordService;
 
 import java.util.List;
@@ -39,6 +40,7 @@ import java.util.List;
 public class FinancialRecordController {
 
 	private final FinancialRecordService recordService;
+	private final FinancialRecordMapper financialRecordMapper;
 
 	@GetMapping
 	public ResponseEntity<Object> getPage(@RequestParam long periodId,
@@ -63,10 +65,10 @@ public class FinancialRecordController {
 																 pageSize,
 																 sortBy != null ? sortBy : "transactionDate",
 																 isAscending != null ? isAscending : false).stream()
-				.map(recordService::getDto)
+				.map(financialRecordMapper::toDTO)
 				.toList();
 
-		return ResponseEntity.ok(new FinancialRecordsHistoryDto(count, records));
+		return ResponseEntity.ok(new FinancialRecordsHistoryDTO(count, records));
 	}
 
 	@PostMapping
@@ -78,7 +80,7 @@ public class FinancialRecordController {
 			FinancialRecord recordAdded = recordService.create(command);
 			return ResponseEntity
 					.status(HttpStatus.CREATED)
-					.body(recordService.getDto(recordAdded));
+					.body(financialRecordMapper.toDTO(recordAdded));
 		} catch (CategoryNotFoundException e) {
 			log.error("Failed to create new FinancialRecord", e);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category \"%s\" not found".formatted(request.category()));
@@ -91,7 +93,7 @@ public class FinancialRecordController {
 		try {
 			UpdateFinancialRecordCommand command = new UpdateFinancialRecordCommand(new FinancialRecordId(id), request);
 			FinancialRecord recordUpdated = recordService.update(command);
-			return ResponseEntity.ok().body(recordService.getDto(recordUpdated));
+			return ResponseEntity.ok().body(financialRecordMapper.toDTO(recordUpdated));
 		} catch (FinancialRecordNotFoundException e) {
 			log.error("Failed to update FinancialRecord", e);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found.");

@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.financemanager.common.FinancialManagerEntity;
 import pl.teardrop.financemanager.domain.category.dto.CategoryDTO;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
@@ -30,7 +31,7 @@ import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordTy
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Category {
+public class Category implements FinancialManagerEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

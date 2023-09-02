@@ -1,6 +1,7 @@
 package pl.teardrop.financemanager.domain.financialrecord.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
@@ -28,20 +29,23 @@ public class SummaryCalculator {
 	private final CategoryService categoryService;
 	private final AccountingPeriodService accountingPeriodService;
 
-	public List<CategorySummary> getSummaryByCategory(UserId userId, AccountingPeriodId periodId, FinancialRecordType type) {
+	@PreAuthorize("#userId.getId() == authentication.principal.getId() "
+				  + "&& @accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	public List<CategorySummary> getSummaryByCategory(UserId userId, AccountingPeriodId accountingPeriodId, FinancialRecordType type) {
 		Map<CategoryId, Category> categoriesById = categoryService.getByUserAndType(userId, type).stream().collect(Collectors.toMap(Category::categoryId, Function.identity()));
 
-		return new ArrayList<>(financialRecordService.getByPeriodIdAndType(periodId, type).stream()
+		return new ArrayList<>(financialRecordService.getByPeriodIdAndType(accountingPeriodId, type).stream()
 									   .map(r -> new CategorySummary(r.getAmount(), categoriesById.get(r.getCategoryId())))
 									   .collect(Collectors.groupingBy(CategorySummary::category,
 																	  Collectors.reducing(CategorySummary.ZERO, CategorySummary::add)))
 									   .values());
 	}
 
-	public AccountingPeriodSummary getAccountingPeriodSummary(AccountingPeriodId periodId) throws AccountingPeriodNotFoundException {
-		AccountingPeriod accountingPeriod = accountingPeriodService.getById(periodId).orElseThrow(() -> new AccountingPeriodNotFoundException("Period id=%d does not exist".formatted(periodId.getId())));
+	@PreAuthorize("@accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	public AccountingPeriodSummary getAccountingPeriodSummary(AccountingPeriodId accountingPeriodId) throws AccountingPeriodNotFoundException {
+		AccountingPeriod accountingPeriod = accountingPeriodService.getById(accountingPeriodId).orElseThrow(() -> new AccountingPeriodNotFoundException("Period id=%d does not exist".formatted(accountingPeriodId.getId())));
 
-		return financialRecordService.getByPeriodId(periodId).stream()
+		return financialRecordService.getByPeriodId(accountingPeriodId).stream()
 				.map(r -> new AccountingPeriodSummary(r.getAmount(), r.getType(), accountingPeriod))
 				.reduce(AccountingPeriodSummary.zero(accountingPeriod), AccountingPeriodSummary::add);
 	}

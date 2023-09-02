@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.financemanager.common.FinancialManagerEntity;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
 
@@ -31,7 +32,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder()
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FinancialRecord {
+public class FinancialRecord implements FinancialManagerEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

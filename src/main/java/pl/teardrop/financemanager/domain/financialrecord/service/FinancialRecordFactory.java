@@ -1,6 +1,7 @@
 package pl.teardrop.financemanager.domain.financialrecord.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
@@ -17,6 +18,7 @@ public class FinancialRecordFactory {
 	private final CategoryService categoryService;
 	private final AccountingPeriodService accountingPeriodService;
 
+	@PreAuthorize("#command.userId().getId() == authentication.principal.getId()")
 	public FinancialRecord getFinancialRecord(CreateFinancialRecordCommand command) throws CategoryNotFoundException {
 		Category category = categoryService.getByUserAndTypeAndName(command.userId(), command.type(), command.category())
 				.orElseThrow(() -> new CategoryNotFoundException("Failed to create FinancialRecord. Category " + command.category() + " not found for userId=" + command.userId().getId()));
@@ -33,5 +35,4 @@ public class FinancialRecordFactory {
 				.accountingPeriodId(period.accountingPeriodId())
 				.build();
 	}
-
 }

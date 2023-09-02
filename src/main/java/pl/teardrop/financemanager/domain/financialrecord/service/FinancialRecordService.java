@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
@@ -35,6 +36,8 @@ public class FinancialRecordService {
 	private final FinancialRecordFactory financialRecordFactory;
 	private final CategoryService categoryService;
 
+	@PreAuthorize("#userId.getId() == authentication.principal.getId() "
+				  + "&& @accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
 	public List<FinancialRecord> getPage(UserId userId,
 										 AccountingPeriodId accountingPeriodId,
 										 FinancialRecordType type,
@@ -48,27 +51,34 @@ public class FinancialRecordService {
 		return recordRepository.findByUserIdAndAccountingPeriodIdAndType(userId, accountingPeriodId, type, PageRequest.of(page, pageSize, sort));
 	}
 
+	@PreAuthorize("@financialRecordAccessTest.test(#financialRecordId, authentication)")
 	public Optional<FinancialRecord> getById(FinancialRecordId financialRecordId) {
 		return recordRepository.findById(financialRecordId.getId());
 	}
 
-	public List<FinancialRecord> getByPeriodIdAndType(AccountingPeriodId periodId, FinancialRecordType type) {
-		return recordRepository.findByAccountingPeriodIdAndType(periodId, type);
+	@PreAuthorize("@accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	public List<FinancialRecord> getByPeriodIdAndType(AccountingPeriodId accountingPeriodId, FinancialRecordType type) {
+		return recordRepository.findByAccountingPeriodIdAndType(accountingPeriodId, type);
 	}
 
-	public List<FinancialRecord> getByPeriodId(AccountingPeriodId periodId) {
-		return recordRepository.findByAccountingPeriodId(periodId);
+	@PreAuthorize("@accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	public List<FinancialRecord> getByPeriodId(AccountingPeriodId accountingPeriodId) {
+		return recordRepository.findByAccountingPeriodId(accountingPeriodId);
 	}
 
-	public int getRecordsCount(UserId userId, AccountingPeriodId periodId, FinancialRecordType type) {
-		return recordRepository.countByUserIdAndAccountingPeriodIdAndType(userId, periodId, type);
+	@PreAuthorize("#userId.getId() == authentication.principal.getId() "
+				  + "&& @accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	public int getRecordsCount(UserId userId, AccountingPeriodId accountingPeriodId, FinancialRecordType type) {
+		return recordRepository.countByUserIdAndAccountingPeriodIdAndType(userId, accountingPeriodId, type);
 	}
 
+	@PreAuthorize("#createCommand.userId().getId() == authentication.principal.getId()")
 	public FinancialRecord create(CreateFinancialRecordCommand createCommand) throws CategoryNotFoundException {
 		FinancialRecord financialRecord = financialRecordFactory.getFinancialRecord(createCommand);
 		return save(financialRecord);
 	}
 
+	@PreAuthorize("@financialRecordAccessTest.test(#updateCommand.recordId(), authentication)")
 	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException {
 		FinancialRecord financialRecord = getById(updateCommand.recordId())
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.recordId().getId())));
@@ -78,6 +88,8 @@ public class FinancialRecordService {
 		return save(financialRecord);
 	}
 
+	@PreAuthorize("(#financialRecord.isNew() || @financialRecordAccessTest.test(#financialRecord.financialRecordId(), authentication)) "
+				  + "&& #financialRecord.getUserId().getId() == authentication.principal.getId()")
 	public FinancialRecord save(FinancialRecord financialRecord) {
 		if (financialRecord.getId() == null) {
 			financialRecord.setCreatedAt(LocalDateTime.now());
@@ -89,14 +101,11 @@ public class FinancialRecordService {
 		return financialRecordSaved;
 	}
 
+	@PreAuthorize("@financialRecordAccessTest.test(#financialRecordId, authentication)")
 	public void delete(FinancialRecordId financialRecordId) throws FinancialRecordNotFoundException {
 		FinancialRecord financialRecord = getById(financialRecordId)
 				.orElseThrow(() -> new FinancialRecordNotFoundException("FinancialRecord with id=%d not found.".formatted(financialRecordId.getId())));
 
-		delete(financialRecord);
-	}
-
-	public void delete(FinancialRecord financialRecord) {
 		recordRepository.delete(financialRecord);
 		log.info("Deleted record id={}, userId={}", financialRecord.getId(), financialRecord.getUserId().getId());
 	}

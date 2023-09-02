@@ -2,9 +2,9 @@ package pl.teardrop.financemanager.domain.category.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.UserId;
-import pl.teardrop.financemanager.common.JsonUtil;
 import pl.teardrop.financemanager.domain.category.dto.AddCategoryCommand;
 import pl.teardrop.financemanager.domain.category.exception.CategoryExistException;
 import pl.teardrop.financemanager.domain.category.model.Category;
@@ -23,29 +23,35 @@ public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
 
+	@PreAuthorize("@categoryAccessTest.test(#categoryId, authentication)")
 	public Optional<Category> getById(CategoryId categoryId) {
 		return categoryRepository.findById(categoryId.getId());
 	}
 
+	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public Optional<Category> getLast(UserId userId, FinancialRecordType type) {
 		return getNotDeletedByUserAndType(userId, type).stream()
 				.max(Comparator.comparing(Category::getPriority));
 	}
 
+	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public Optional<Category> getByUserAndTypeAndName(UserId userId, FinancialRecordType type, String name) {
-		return categoryRepository.getByUserIdAndTypeAndNameIgnoreCase(userId, type, name);
+		return categoryRepository.findByUserIdAndTypeAndNameIgnoreCase(userId, type, name);
 	}
 
+	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public List<Category> getNotDeletedByUserAndType(UserId userId, FinancialRecordType type) {
-		return categoryRepository.getByUserIdAndTypeOrderByPriority(userId, type).stream()
+		return categoryRepository.findByUserIdAndTypeOrderByPriority(userId, type).stream()
 				.filter(category -> !category.isDeleted())
 				.toList();
 	}
 
+	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public List<Category> getByUserAndType(UserId userId, FinancialRecordType type) {
-		return categoryRepository.getByUserIdAndTypeOrderByPriority(userId, type);
+		return categoryRepository.findByUserIdAndTypeOrderByPriority(userId, type);
 	}
 
+	@PreAuthorize("#command.userId().getId() == authentication.principal.getId()")
 	public Category create(AddCategoryCommand command) throws CategoryExistException {
 		Optional<Category> categoryOpt = getByUserAndTypeAndName(command.userId(), command.type(), command.name());
 
@@ -61,6 +67,7 @@ public class CategoryService {
 						.orElse(1);
 
 				existingCategory.setDeleted(false);
+				existingCategory.setName(command.name());
 				existingCategory.setPriority(priority);
 
 				return save(existingCategory);
@@ -83,12 +90,15 @@ public class CategoryService {
 		}
 	}
 
+	@PreAuthorize("(#category.isNew() || @categoryAccessTest.test(#category.categoryId(), authentication)) "
+				  + "&& #category.getUserId().getId() == authentication.principal.getId()")
 	public Category save(Category category) {
 		Category savedCategory = categoryRepository.save(category);
 		log.info("Saved category id={}, userId={}", savedCategory.getId(), savedCategory.getUserId().getId());
 		return savedCategory;
 	}
 
+	@PreAuthorize("@categoryAccessTest.test(#categoryId, authentication)")
 	public void delete(CategoryId categoryId) {
 		categoryRepository.findById(categoryId.getId()).ifPresent(category -> {
 			category.setDeleted(true);
@@ -98,6 +108,7 @@ public class CategoryService {
 		});
 	}
 
+	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public void reorder(UserId userId, FinancialRecordType type) {
 		List<Category> categories = getNotDeletedByUserAndType(userId, type);
 		for (int i = 0; i < categories.size(); i++) {

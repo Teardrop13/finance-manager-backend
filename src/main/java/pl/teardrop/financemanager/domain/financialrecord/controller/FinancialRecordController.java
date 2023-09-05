@@ -94,9 +94,9 @@ public class FinancialRecordController {
 			UpdateFinancialRecordCommand command = new UpdateFinancialRecordCommand(new FinancialRecordId(id), request);
 			FinancialRecord recordUpdated = recordService.update(command);
 			return ResponseEntity.ok().body(financialRecordMapper.toDTO(recordUpdated));
-		} catch (FinancialRecordNotFoundException e) {
+		} catch (FinancialRecordNotFoundException | CategoryNotFoundException e) {
 			log.error("Failed to update FinancialRecord", e);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 

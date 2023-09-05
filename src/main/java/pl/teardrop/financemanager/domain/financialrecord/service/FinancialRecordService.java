@@ -11,6 +11,8 @@ import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
 import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
+import pl.teardrop.financemanager.domain.category.model.Category;
+import pl.teardrop.financemanager.domain.category.service.CategoryService;
 import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.dto.UpdateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.exception.FinancialRecordNotFoundException;
@@ -31,6 +33,7 @@ public class FinancialRecordService {
 	private final FinancialRecordRepository recordRepository;
 	private final AccountingPeriodService accountingPeriodService;
 	private final FinancialRecordFactory financialRecordFactory;
+	private final CategoryService categoryService;
 
 	@PreAuthorize("#userId.getId() == authentication.principal.getId() "
 				  + "&& @accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
@@ -75,11 +78,16 @@ public class FinancialRecordService {
 	}
 
 	@PreAuthorize("@financialRecordAccessTest.test(#updateCommand.recordId(), authentication)")
-	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException {
+	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException, CategoryNotFoundException {
 		FinancialRecord financialRecord = getById(updateCommand.recordId())
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.recordId().getId())));
 
+		Category category = categoryService.getByUserAndTypeAndName(financialRecord.getUserId(), financialRecord.getType(), updateCommand.category())
+				.orElseThrow(() -> new CategoryNotFoundException("Failed to create FinancialRecord. Category " + updateCommand.category() + " not found for userId=" + financialRecord.getUserId().getId()));
+
 		financialRecord.setDescription(updateCommand.description());
+		financialRecord.setTransactionDate(updateCommand.transactionDate());
+		financialRecord.setCategoryId(category.categoryId());
 		financialRecord.setAmount(updateCommand.amount());
 		return save(financialRecord);
 	}

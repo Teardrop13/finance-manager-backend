@@ -6,7 +6,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.financemanager.domain.category.dto.AddCategoryCommand;
+import pl.teardrop.financemanager.domain.category.dto.UpdateCategoryCommand;
 import pl.teardrop.financemanager.domain.category.exception.CategoryExistException;
+import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
 import pl.teardrop.financemanager.domain.category.repository.CategoryRepository;
@@ -117,5 +119,17 @@ public class CategoryService {
 			save(category);
 		}
 		log.info("Categories reordered for userId={}", userId.getId());
+	}
+
+	public void update(UpdateCategoryCommand command) throws CategoryNotFoundException {
+		Category category = getById(command.id())
+				.orElseThrow(() -> new CategoryNotFoundException("Category id=%d not found".formatted(command.id().getId())));
+
+		category.setName(command.name());
+		category.setPriority(command.priority());
+
+		save(category);
+
+		log.info("Category id={} updated", command.id().getId());
 	}
 }

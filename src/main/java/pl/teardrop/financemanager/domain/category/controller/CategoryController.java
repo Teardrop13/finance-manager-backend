@@ -11,14 +11,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.teardrop.authentication.user.UserId;
 import pl.teardrop.authentication.user.UserUtils;
 import pl.teardrop.financemanager.domain.category.dto.AddCategoryCommand;
 import pl.teardrop.financemanager.domain.category.dto.AddCategoryRequest;
 import pl.teardrop.financemanager.domain.category.dto.CategoryDTO;
+import pl.teardrop.financemanager.domain.category.dto.UpdateCategoriesRequest;
+import pl.teardrop.financemanager.domain.category.dto.UpdateCategoryCommand;
 import pl.teardrop.financemanager.domain.category.exception.CategoryExistException;
+import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
 import pl.teardrop.financemanager.domain.category.service.CategoryMapper;
@@ -54,15 +56,17 @@ public class CategoryController {
 	}
 
 	@PutMapping
-	public ResponseEntity<Object> save(@RequestBody List<CategoryDTO> categories) {
-		categories.forEach(updatedCategory -> {
-			categoryService.getById(new CategoryId(updatedCategory.id()))
-					.ifPresent(category -> {
-						category.setName(updatedCategory.name());
-						category.setPriority(updatedCategory.priority());
-						categoryService.save(category);
-					});
-		});
+	public ResponseEntity<Object> update(@RequestBody UpdateCategoriesRequest request) {
+		List<UpdateCategoryCommand> updateCommands = request.updateCategoryRequests().stream()
+				.map(r -> new UpdateCategoryCommand(r))
+				.toList();
+		try {
+			for (UpdateCategoryCommand command : updateCommands) {
+				categoryService.update(command);
+			}
+		} catch (CategoryNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+		}
 		return ResponseEntity.noContent().build();
 	}
 
@@ -81,7 +85,6 @@ public class CategoryController {
 	}
 
 	@DeleteMapping("/{id}")
-	@ResponseStatus(HttpStatus.OK)
 	public ResponseEntity<Object> delete(@PathVariable long id) {
 		Optional<Category> categoryOpt = categoryService.getById(new CategoryId(id));
 

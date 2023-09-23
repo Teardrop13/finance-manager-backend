@@ -29,8 +29,10 @@ pipeline {
             }
         }
         stage('Deploy') {
-            sh 'cp /home/ubuntu/.jenkins/workspace/finance-manager-backend/target/finance-manager-0.1.jar /home/ubuntu'
-            sh './scripts/start.sh'
+            steps {
+                sh 'cp /home/ubuntu/.jenkins/workspace/finance-manager-backend/target/finance-manager-0.1.jar /home/ubuntu'
+                sh './scripts/start.sh'
+            }
         }
     }
 }

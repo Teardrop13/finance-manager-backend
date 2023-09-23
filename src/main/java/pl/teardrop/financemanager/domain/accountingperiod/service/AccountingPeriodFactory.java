@@ -11,10 +11,11 @@ public class AccountingPeriodFactory {
 
 	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public AccountingPeriod getAccountingPeriod(UserId userId, LocalDate date) {
-		AccountingPeriod period = new AccountingPeriod();
-		period.setUserId(userId);
-		period.setStartsOn(getDefaultStartsOn(date));
-		period.setEndsOn(getDefaultEndsOn(date));
+		AccountingPeriod period = AccountingPeriod.builder()
+				.userId(userId)
+				.startsOn(getDefaultStartsOn(date))
+				.endsOn(getDefaultEndsOn(date))
+				.build();
 		return period;
 	}
 

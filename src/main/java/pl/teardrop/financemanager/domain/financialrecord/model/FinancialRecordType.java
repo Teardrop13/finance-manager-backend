@@ -1,6 +1,7 @@
 package pl.teardrop.financemanager.domain.financialrecord.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -8,7 +9,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Getter
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum FinancialRecordType {
 	INCOME("income"),
 	EXPENSE("expense");

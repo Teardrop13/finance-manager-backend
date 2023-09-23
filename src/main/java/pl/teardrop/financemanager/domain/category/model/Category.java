@@ -27,7 +27,7 @@ import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordTy
 @Setter
 @Table(name = "FM_CATEGORY")
 @EqualsAndHashCode
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class Category implements FinancialManagerEntity {

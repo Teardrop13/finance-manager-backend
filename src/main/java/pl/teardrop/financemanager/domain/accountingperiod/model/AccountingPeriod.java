@@ -23,7 +23,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Table(name = "FM_ACCOUNTING_PERIOD")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class AccountingPeriod implements FinancialManagerEntity {

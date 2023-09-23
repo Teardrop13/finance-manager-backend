@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "FM_RECORD")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder()
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FinancialRecord implements FinancialManagerEntity {

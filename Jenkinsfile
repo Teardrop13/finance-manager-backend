@@ -5,6 +5,10 @@ pipeline {
         jdk "jdk21"
     }
 
+    triggers {
+        upstream: 'authentication, '
+    }
+
     stages {
         stage('Build') {
             steps {

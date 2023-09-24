@@ -6,7 +6,7 @@ pipeline {
     }
 
     triggers {
-        upstream: 'authentication, '
+        upstream 'authentication, '
     }
 
     stages {

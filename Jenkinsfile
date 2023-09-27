@@ -24,8 +24,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'cp /var/lib/jenkins/workspace/finance-manager-backend/target/finance-manager-0.1.jar /home/ubuntu/applications'
-                sh 'JENKINS_NODE_COOKIE=dontKillMe /home/ubuntu/scripts/start.sh &'
+                sh 'cp /var/lib/jenkins/workspace/finance-manager-backend/target/finance-manager-0.1.jar /opt/finance-manager'
+                sh 'systemctl restart finance-manager-backend.service'
             }
         }
     }

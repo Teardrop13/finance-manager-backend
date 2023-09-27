@@ -25,7 +25,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh 'cp /var/lib/jenkins/workspace/finance-manager-backend/target/finance-manager-0.1.jar /opt/finance-manager'
-                sh 'systemctl restart finance-manager-backend.service'
+                sh 'sudo systemctl restart finance-manager-backend.service'
             }
         }
     }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.authentication.user.domain.UserId;
 import pl.teardrop.financemanager.domain.category.dto.AddCategoryCommand;
 import pl.teardrop.financemanager.domain.category.exception.CategoryExistException;
 import pl.teardrop.financemanager.domain.category.model.Category;

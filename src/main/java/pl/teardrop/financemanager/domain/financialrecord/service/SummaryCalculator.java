@@ -29,8 +29,7 @@ public class SummaryCalculator {
 	private final CategoryService categoryService;
 	private final AccountingPeriodService accountingPeriodService;
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId() "
-				  + "&& @accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public List<CategorySummary> getSummaryByCategory(UserId userId, AccountingPeriodId accountingPeriodId, FinancialRecordType type) {
 		Map<CategoryId, Category> categoriesById = categoryService.getByUserAndType(userId, type).stream().collect(Collectors.toMap(Category::categoryId, Function.identity()));
 
@@ -41,7 +40,7 @@ public class SummaryCalculator {
 									   .values());
 	}
 
-	@PreAuthorize("@accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public AccountingPeriodSummary getAccountingPeriodSummary(AccountingPeriodId accountingPeriodId) throws AccountingPeriodNotFoundException {
 		AccountingPeriod accountingPeriod = accountingPeriodService.getById(accountingPeriodId).orElseThrow(() -> new AccountingPeriodNotFoundException("Period id=%d does not exist".formatted(accountingPeriodId.getId())));
 

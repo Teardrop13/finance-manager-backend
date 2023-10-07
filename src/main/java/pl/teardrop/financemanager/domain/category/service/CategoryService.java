@@ -25,35 +25,30 @@ public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
 
-	@PreAuthorize("@categoryAccessTest.test(#categoryId, authentication)")
+	@PreAuthorize("hasPermission(#categoryId, 'Category', 'read')")
 	public Optional<Category> getById(CategoryId categoryId) {
 		return categoryRepository.findById(categoryId.getId());
 	}
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public Optional<Category> getLast(UserId userId, FinancialRecordType type) {
 		return getNotDeletedByUserAndType(userId, type).stream()
 				.max(Comparator.comparing(Category::getPriority));
 	}
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public Optional<Category> getByUserAndTypeAndName(UserId userId, FinancialRecordType type, String name) {
 		return categoryRepository.findByUserIdAndTypeAndNameIgnoreCase(userId, type, name);
 	}
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public List<Category> getNotDeletedByUserAndType(UserId userId, FinancialRecordType type) {
 		return categoryRepository.findByUserIdAndTypeOrderByPriority(userId, type).stream()
 				.filter(category -> !category.isDeleted())
 				.toList();
 	}
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public List<Category> getByUserAndType(UserId userId, FinancialRecordType type) {
 		return categoryRepository.findByUserIdAndTypeOrderByPriority(userId, type);
 	}
 
-	@PreAuthorize("#command.userId().getId() == authentication.principal.getId()")
 	public Category create(AddCategoryCommand command) throws CategoryExistException {
 		Optional<Category> categoryOpt = getByUserAndTypeAndName(command.userId(), command.type(), command.name());
 
@@ -92,15 +87,14 @@ public class CategoryService {
 		}
 	}
 
-	@PreAuthorize("(#category.isNew() || @categoryAccessTest.test(#category.categoryId(), authentication)) "
-				  + "&& #category.getUserId().getId() == authentication.principal.getId()")
+	@PreAuthorize("#category.isNew() || hasPermission(#category.categoryId(), 'Category', 'write')")
 	public Category save(Category category) {
 		Category savedCategory = categoryRepository.save(category);
 		log.info("Saved category id={}, userId={}", savedCategory.getId(), savedCategory.getUserId().getId());
 		return savedCategory;
 	}
 
-	@PreAuthorize("@categoryAccessTest.test(#categoryId, authentication)")
+	@PreAuthorize("hasPermission(#categoryId, 'Category', 'delete')")
 	public void delete(CategoryId categoryId) {
 		getById(categoryId).ifPresent(category -> {
 			category.setDeleted(true);
@@ -110,7 +104,6 @@ public class CategoryService {
 		});
 	}
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public void reorder(UserId userId, FinancialRecordType type) {
 		List<Category> categories = getNotDeletedByUserAndType(userId, type);
 		for (int i = 0; i < categories.size(); i++) {
@@ -121,6 +114,7 @@ public class CategoryService {
 		log.info("Categories reordered for userId={}", userId.getId());
 	}
 
+	@PreAuthorize("hasPermission(#command.id, 'Category', 'write')")
 	public void update(UpdateCategoryCommand command) throws CategoryNotFoundException {
 		Category category = getById(command.id())
 				.orElseThrow(() -> new CategoryNotFoundException("Category id=%d not found".formatted(command.id().getId())));

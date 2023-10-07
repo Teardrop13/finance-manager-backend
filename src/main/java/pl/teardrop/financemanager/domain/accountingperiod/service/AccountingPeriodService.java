@@ -21,18 +21,15 @@ public class AccountingPeriodService {
 	private final AccountingPeriodRepository accountingPeriodRepository;
 	private final AccountingPeriodValidator accountingPeriodValidator;
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId()")
 	public List<AccountingPeriod> getByUser(UserId userId) {
 		return accountingPeriodRepository.findByUserIdOrderByStartsOn(userId);
 	}
 
-	@PreAuthorize("@accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public Optional<AccountingPeriod> getById(AccountingPeriodId accountingPeriodId) {
 		return accountingPeriodRepository.findById(accountingPeriodId.getId());
 	}
-
-	@PreAuthorize("(#accountingPeriod.isNew() || @accountingPeriodAccessTest.test(#accountingPeriod.accountingPeriodId(), authentication)) "
-				  + "&& #userId.getId() == authentication.principal.getId()")
+	@PreAuthorize("#accountingPeriod.isNew() || hasPermission(#accountingPeriodId, 'AccountingPeriod', 'write'")
 	public AccountingPeriod save(AccountingPeriod accountingPeriod) {
 		accountingPeriodValidator.validate(accountingPeriod);
 		AccountingPeriod periodAdded = accountingPeriodRepository.save(accountingPeriod);
@@ -40,26 +37,22 @@ public class AccountingPeriodService {
 		return periodAdded;
 	}
 
-	@PreAuthorize("#userId.getId() == authentication.principal.id")
 	public AccountingPeriod getCurrent(UserId userId) {
 		return getByDate(LocalDate.now(), userId);
 	}
 
-	@PreAuthorize("@accountingPeriodAccessTest.test(#currentId, authentication) && "
-				  + "#userId.getId() == authentication.principal.id")
+	@PreAuthorize("hasPermission(#currentId, 'AccountingPeriod', 'read')")
 	public AccountingPeriod getNext(AccountingPeriodId currentId, UserId userId) {
 		AccountingPeriod accountingPeriod = getById(currentId).orElseThrow(() -> new RuntimeException("AccountingPeriod for id=" + currentId + " and userId=" + userId.getId() + " not found"));
 		return getByDate(accountingPeriod.getEndsOn().plusDays(1), userId);
 	}
 
-	@PreAuthorize("@accountingPeriodAccessTest.test(#currentId, authentication) && "
-				  + "#userId.getId() == authentication.principal.id")
+	@PreAuthorize("hasPermission(#currentId, 'AccountingPeriod', 'read')")
 	public AccountingPeriod getPrevious(AccountingPeriodId currentId, UserId userId) {
 		AccountingPeriod accountingPeriod = getById(currentId).orElseThrow(() -> new RuntimeException("AccountingPeriod for id=" + currentId + " and userId=" + userId.getId() + " not found"));
 		return getByDate(accountingPeriod.getStartsOn().minusDays(1), userId);
 	}
 
-	@PreAuthorize("#userId.getId() == authentication.principal.id")
 	public AccountingPeriod getByDate(LocalDate date, UserId userId) {
 		return accountingPeriodRepository.findFirstByDate(date, userId)
 				.orElseGet(() -> {

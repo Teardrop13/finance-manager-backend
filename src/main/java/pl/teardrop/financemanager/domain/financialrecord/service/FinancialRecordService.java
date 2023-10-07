@@ -35,8 +35,7 @@ public class FinancialRecordService {
 	private final FinancialRecordFactory financialRecordFactory;
 	private final CategoryService categoryService;
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId() "
-				  + "&& @accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public List<FinancialRecord> getPage(UserId userId,
 										 AccountingPeriodId accountingPeriodId,
 										 FinancialRecordType type,
@@ -50,34 +49,32 @@ public class FinancialRecordService {
 		return recordRepository.findByUserIdAndAccountingPeriodIdAndType(userId, accountingPeriodId, type, PageRequest.of(page, pageSize, sort));
 	}
 
-	@PreAuthorize("@financialRecordAccessTest.test(#financialRecordId, authentication)")
+	@PreAuthorize("hasPermission(#financialRecordId, 'FinancialRecord', 'read')")
 	public Optional<FinancialRecord> getById(FinancialRecordId financialRecordId) {
 		return recordRepository.findById(financialRecordId.getId());
 	}
 
-	@PreAuthorize("@accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public List<FinancialRecord> getByPeriodIdAndType(AccountingPeriodId accountingPeriodId, FinancialRecordType type) {
 		return recordRepository.findByAccountingPeriodIdAndType(accountingPeriodId, type);
 	}
 
-	@PreAuthorize("@accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public List<FinancialRecord> getByPeriodId(AccountingPeriodId accountingPeriodId) {
 		return recordRepository.findByAccountingPeriodId(accountingPeriodId);
 	}
 
-	@PreAuthorize("#userId.getId() == authentication.principal.getId() "
-				  + "&& @accountingPeriodAccessTest.test(#accountingPeriodId, authentication)")
+	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public int getRecordsCount(UserId userId, AccountingPeriodId accountingPeriodId, FinancialRecordType type) {
 		return recordRepository.countByUserIdAndAccountingPeriodIdAndType(userId, accountingPeriodId, type);
 	}
 
-	@PreAuthorize("#createCommand.userId().getId() == authentication.principal.getId()")
 	public FinancialRecord create(CreateFinancialRecordCommand createCommand) throws CategoryNotFoundException {
 		FinancialRecord financialRecord = financialRecordFactory.getFinancialRecord(createCommand);
 		return save(financialRecord);
 	}
 
-	@PreAuthorize("@financialRecordAccessTest.test(#updateCommand.recordId(), authentication)")
+	@PreAuthorize("hasPermission(#financialRecordId, 'FinancialRecord', 'write')")
 	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException, CategoryNotFoundException {
 		FinancialRecord financialRecord = getById(updateCommand.recordId())
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.recordId().getId())));
@@ -92,8 +89,7 @@ public class FinancialRecordService {
 		return save(financialRecord);
 	}
 
-	@PreAuthorize("(#financialRecord.isNew() || @financialRecordAccessTest.test(#financialRecord.financialRecordId(), authentication)) "
-				  + "&& #financialRecord.getUserId().getId() == authentication.principal.getId()")
+	@PreAuthorize("#financialRecord.isNew() || hasPermission(#financialRecord.financialRecordId(), 'FinancialRecord', 'write')")
 	public FinancialRecord save(FinancialRecord financialRecord) {
 		if (financialRecord.getId() == null) {
 			financialRecord.setCreatedAt(LocalDateTime.now());
@@ -105,7 +101,7 @@ public class FinancialRecordService {
 		return financialRecordSaved;
 	}
 
-	@PreAuthorize("@financialRecordAccessTest.test(#financialRecordId, authentication)")
+	@PreAuthorize("hasPermission(#financialRecordId, 'FinancialRecord', 'delete')")
 	public void delete(FinancialRecordId financialRecordId) throws FinancialRecordNotFoundException {
 		FinancialRecord financialRecord = getById(financialRecordId)
 				.orElseThrow(() -> new FinancialRecordNotFoundException("FinancialRecord with id=%d not found.".formatted(financialRecordId.getId())));

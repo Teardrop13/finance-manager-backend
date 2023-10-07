@@ -1,11 +1,13 @@
 package pl.teardrop.financemanager.authentication.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.teardrop.authentication.user.DefaultUserService;
-import pl.teardrop.authentication.user.User;
-import pl.teardrop.authentication.user.UserRepository;
-import pl.teardrop.authentication.user.UserService;
+import pl.teardrop.authentication.user.service.DefaultUserService;
+import pl.teardrop.authentication.user.domain.Email;
+import pl.teardrop.authentication.user.domain.Password;
+import pl.teardrop.authentication.user.service.PasswordEncryptor;
+import pl.teardrop.authentication.user.domain.User;
+import pl.teardrop.authentication.user.repository.UserRepository;
+import pl.teardrop.authentication.user.service.UserService;
 import pl.teardrop.financemanager.domain.category.service.DefaultCategoriesService;
 
 public class FinancialManagerUserService extends DefaultUserService implements UserService {
@@ -14,15 +16,15 @@ public class FinancialManagerUserService extends DefaultUserService implements U
 
 	@Autowired
 	public FinancialManagerUserService(UserRepository userRepository,
-									   PasswordEncoder passwordEncoder,
+									   PasswordEncryptor passwordEncryptor,
 									   DefaultCategoriesService defaultCategoriesService) {
-		super(userRepository, passwordEncoder);
+		super(userRepository, passwordEncryptor);
 		this.defaultCategoriesService = defaultCategoriesService;
 	}
 
 	@Override
-	public User create(String username, String password, String email) {
-		User userAdded = super.create(username, password, email);
+	public User create(Email email, Password password) {
+		User userAdded = super.create(email, password);
 		defaultCategoriesService.addDefaults(userAdded.userId());
 		return userAdded;
 	}

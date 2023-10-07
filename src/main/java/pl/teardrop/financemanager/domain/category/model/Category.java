@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.authentication.user.domain.UserId;
 import pl.teardrop.financemanager.common.FinancialManagerEntity;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 

@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 import static lombok.AccessLevel.PROTECTED;
 
 @Embeddable
@@ -16,9 +18,6 @@ public class AccountingPeriodId {
 	private Long id;
 
 	public AccountingPeriodId(Long id) {
-		if (id == null) {
-			throw new IllegalArgumentException("id cannot be null");
-		}
-		this.id = id;
+		this.id = Objects.requireNonNull(id);
 	}
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pl.teardrop.authentication.user.UserUtils;
+import pl.teardrop.authentication.user.service.UserUtils;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.financialrecord.dto.CategorySummaryDTO;
 import pl.teardrop.financemanager.domain.financialrecord.exception.AccountingPeriodNotFoundException;

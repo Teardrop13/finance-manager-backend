@@ -3,7 +3,7 @@ package pl.teardrop.financemanager.domain.accountingperiod.repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.authentication.user.domain.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
 
 import java.time.LocalDate;

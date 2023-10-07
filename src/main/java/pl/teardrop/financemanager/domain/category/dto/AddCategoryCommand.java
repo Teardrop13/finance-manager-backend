@@ -1,6 +1,6 @@
 package pl.teardrop.financemanager.domain.category.dto;
 
-import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.authentication.user.domain.UserId;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
 public record AddCategoryCommand(UserId userId,

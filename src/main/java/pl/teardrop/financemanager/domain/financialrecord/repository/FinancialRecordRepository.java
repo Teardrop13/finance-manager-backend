@@ -3,7 +3,7 @@ package pl.teardrop.financemanager.domain.financialrecord.repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.authentication.user.domain.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecord;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;

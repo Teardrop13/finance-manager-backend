@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.authentication.user.domain.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;

@@ -3,7 +3,7 @@ package pl.teardrop.financemanager.domain.financialrecord.service;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import pl.teardrop.authentication.user.UserId;
+import pl.teardrop.authentication.user.domain.UserId;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod;
 import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriodId;
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;

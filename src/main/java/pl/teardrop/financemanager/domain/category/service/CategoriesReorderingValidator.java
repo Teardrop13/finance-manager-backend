@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CategoriesReorderingValidator {
 
-	private final CategoryService categoryService;
+	private final CategoryRetrievingService categoryRetrievingService;
 
 	public boolean validate(ReorderCategoriesCommand command) {
-		List<Category> categories = categoryService.getNotDeletedByUserAndType(command.userId(), command.type());
+		List<Category> categories = categoryRetrievingService.getNotDeletedByUserAndType(command.userId(), command.type());
 
 		Set<CategoryId> ids = categories.stream()
 				.map(Category::categoryId)

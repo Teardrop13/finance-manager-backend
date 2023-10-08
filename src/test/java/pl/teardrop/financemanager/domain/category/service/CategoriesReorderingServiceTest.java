@@ -16,7 +16,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,14 +26,16 @@ class CategoriesReorderingServiceTest {
 	@Mock
 	private CategoriesReorderingValidator categoriesReorderingValidator;
 	@Mock
-	private CategoryService categoryService;
+	private CategorySavingService categorySavingService;
+	@Mock
+	private CategoryRetrievingService categoryRetrievingService;
 
 	private CategoriesReorderingService categoriesReorderingService;
 	private final UserId USER_ID = new UserId(1L);
 
 	@BeforeEach
 	void setUp() {
-		categoriesReorderingService = new CategoriesReorderingService(categoryService, categoriesReorderingValidator);
+		categoriesReorderingService = new CategoriesReorderingService(categoryRetrievingService, categorySavingService, categoriesReorderingValidator);
 	}
 
 	@Test
@@ -43,7 +44,7 @@ class CategoriesReorderingServiceTest {
 
 		ArgumentCaptor<Category> argument = ArgumentCaptor.forClass(Category.class);
 
-		when(categoryService.getNotDeletedByUserAndType(USER_ID, type))
+		when(categoryRetrievingService.getNotDeletedByUserAndType(USER_ID, type))
 				.thenReturn(List.of(
 						Category.builder()
 								.priority(new CategoryPriority(1))
@@ -56,12 +57,12 @@ class CategoriesReorderingServiceTest {
 								.build()
 				));
 
-		doAnswer(returnsFirstArg())
-				.when(categoryService).save(any(Category.class));
+		when(categorySavingService.save(any(Category.class)))
+				.thenAnswer(returnsFirstArg());
 
 		categoriesReorderingService.reorder(USER_ID, type);
 
-		verify(categoryService, times(2)).save(argument.capture());
+		verify(categorySavingService, times(2)).save(argument.capture());
 
 		List<Category> savedCategories = argument.getAllValues();
 		assertEquals(2, savedCategories.size());

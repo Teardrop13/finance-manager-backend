@@ -12,7 +12,7 @@ import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
 import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.category.model.Category;
-import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.CategoryRetrievingService;
 import pl.teardrop.financemanager.domain.financialrecord.dto.CreateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.dto.UpdateFinancialRecordCommand;
 import pl.teardrop.financemanager.domain.financialrecord.exception.FinancialRecordNotFoundException;
@@ -33,7 +33,7 @@ public class FinancialRecordService {
 	private final FinancialRecordRepository recordRepository;
 	private final AccountingPeriodService accountingPeriodService;
 	private final FinancialRecordFactory financialRecordFactory;
-	private final CategoryService categoryService;
+	private final CategoryRetrievingService categoryRetrievingService;
 
 	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public List<FinancialRecord> getPage(UserId userId,
@@ -79,7 +79,7 @@ public class FinancialRecordService {
 		FinancialRecord financialRecord = getById(updateCommand.recordId())
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.recordId().getId())));
 
-		Category category = categoryService.getByUserAndTypeAndName(financialRecord.getUserId(), financialRecord.getType(), updateCommand.category())
+		Category category = categoryRetrievingService.getByUserAndTypeAndName(financialRecord.getUserId(), financialRecord.getType(), updateCommand.category())
 				.orElseThrow(() -> new CategoryNotFoundException("Failed to create FinancialRecord. Category " + updateCommand.category() + " not found for userId=" + financialRecord.getUserId().getId()));
 
 		financialRecord.setDescription(updateCommand.description());

@@ -23,10 +23,12 @@ import pl.teardrop.financemanager.domain.category.dto.UpdateCategoryRequest;
 import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryPriority;
+import pl.teardrop.financemanager.domain.category.service.AddingCategoryService;
 import pl.teardrop.financemanager.domain.category.service.CategoriesReorderingService;
 import pl.teardrop.financemanager.domain.category.service.CategoryDeletingService;
 import pl.teardrop.financemanager.domain.category.service.CategoryMapper;
-import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.CategoryRetrievingService;
+import pl.teardrop.financemanager.domain.category.service.CategorySavingService;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
 import java.util.List;
@@ -51,14 +53,17 @@ class CategoryControllerTest {
 	@MockBean
 	private Authentication authentication;
 	@MockBean
-	private CategoryService categoryService;
+	private CategoryRetrievingService categoryRetrievingService;
 	@MockBean
 	private CategoryDeletingService categoryDeletingService;
 	@MockBean
 	private CategoryMapper categoryMapper;
 	@MockBean
 	private CategoriesReorderingService categoriesReorderingService;
-
+	@MockBean
+	private CategorySavingService categorySavingService;
+	@MockBean
+	private AddingCategoryService addingCategoryService;
 	private final UserId USER_ID = new UserId(1L);
 
 	@BeforeEach
@@ -76,7 +81,7 @@ class CategoryControllerTest {
 
 		doAnswer(InvocationOnMock::callRealMethod).when(categoryMapper).toDTO(any(Category.class));
 
-		when(categoryService.getNotDeletedByUserAndType(any(UserId.class), any(FinancialRecordType.class))).thenReturn(List.of(
+		when(categoryRetrievingService.getNotDeletedByUserAndType(any(UserId.class), any(FinancialRecordType.class))).thenReturn(List.of(
 				Category.builder()
 						.name(categoryName)
 						.id(categoryId)
@@ -116,7 +121,7 @@ class CategoryControllerTest {
 							.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isNoContent());
 
-		verify(categoryService, times(2)).update(commandCaptor.capture());
+		verify(categorySavingService, times(2)).update(commandCaptor.capture());
 
 		List<UpdateCategoryCommand> capturedCommands = commandCaptor.getAllValues();
 		assertEquals(2, capturedCommands.size());
@@ -137,7 +142,7 @@ class CategoryControllerTest {
 		final UpdateCategoryRequest updateCategoryRequest1 = new UpdateCategoryRequest(1L, 1, "House");
 		final UpdateCategoriesRequest updateCategoriesRequest = new UpdateCategoriesRequest(List.of(updateCategoryRequest1));
 
-		doThrow(CategoryNotFoundException.class).when(categoryService).update(any(UpdateCategoryCommand.class));
+		doThrow(CategoryNotFoundException.class).when(categorySavingService).update(any(UpdateCategoryCommand.class));
 
 		mvc.perform(MockMvcRequestBuilders.put("/api/categories")
 							.content(new ObjectMapper().writeValueAsString(updateCategoriesRequest))

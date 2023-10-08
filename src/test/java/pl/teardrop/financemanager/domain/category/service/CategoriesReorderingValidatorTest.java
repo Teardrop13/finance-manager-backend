@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 class CategoriesReorderingValidatorTest {
 
 	@Mock
-	private CategoryService categoryService;
+	private CategoryRetrievingService categoryRetrievingService;
 	private CategoriesReorderingValidator validator;
 
 	private final UserId userId = new UserId(1L);
@@ -31,7 +31,7 @@ class CategoriesReorderingValidatorTest {
 
 	@BeforeEach
 	void setUp() {
-		validator = new CategoriesReorderingValidator(categoryService);
+		validator = new CategoriesReorderingValidator(categoryRetrievingService);
 	}
 
 	@Test
@@ -40,7 +40,7 @@ class CategoriesReorderingValidatorTest {
 		CategoryId categoryId2 = new CategoryId(2L);
 		CategoryId categoryId3 = new CategoryId(3L);
 
-		when(categoryService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
+		when(categoryRetrievingService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
 				Category.builder().id(categoryId1.getId()).priority(new CategoryPriority(1)).build(),
 				Category.builder().id(categoryId2.getId()).priority(new CategoryPriority(2)).build(),
 				Category.builder().id(categoryId3.getId()).priority(new CategoryPriority(3)).build()
@@ -61,7 +61,7 @@ class CategoriesReorderingValidatorTest {
 		CategoryId categoryId2 = new CategoryId(2L);
 		CategoryId categoryId3 = new CategoryId(3L);
 
-		when(categoryService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
+		when(categoryRetrievingService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
 				Category.builder().id(categoryId1.getId()).priority(new CategoryPriority(1)).build(),
 				Category.builder().id(categoryId2.getId()).priority(new CategoryPriority(2)).build(),
 				Category.builder().id(categoryId3.getId()).priority(new CategoryPriority(3)).build()
@@ -81,7 +81,7 @@ class CategoriesReorderingValidatorTest {
 		CategoryId categoryId2 = new CategoryId(2L);
 		CategoryId categoryId3 = new CategoryId(3L);
 
-		when(categoryService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
+		when(categoryRetrievingService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
 				Category.builder().id(categoryId1.getId()).priority(new CategoryPriority(1)).build(),
 				Category.builder().id(categoryId2.getId()).priority(new CategoryPriority(2)).build(),
 				Category.builder().id(categoryId3.getId()).priority(new CategoryPriority(3)).build()
@@ -102,7 +102,7 @@ class CategoriesReorderingValidatorTest {
 		CategoryId categoryId2 = new CategoryId(2L);
 		CategoryId categoryId3 = new CategoryId(3L);
 
-		when(categoryService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
+		when(categoryRetrievingService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
 				Category.builder().id(categoryId1.getId()).priority(new CategoryPriority(1)).build(),
 				Category.builder().id(categoryId2.getId()).priority(new CategoryPriority(2)).build(),
 				Category.builder().id(categoryId3.getId()).priority(new CategoryPriority(3)).build()
@@ -124,7 +124,7 @@ class CategoriesReorderingValidatorTest {
 		CategoryId categoryId3 = new CategoryId(3L);
 		CategoryId InvalidCategoryId = new CategoryId(4L);
 
-		when(categoryService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
+		when(categoryRetrievingService.getNotDeletedByUserAndType(userId, type)).thenReturn(List.of(
 				Category.builder().id(categoryId1.getId()).priority(new CategoryPriority(1)).build(),
 				Category.builder().id(categoryId2.getId()).priority(new CategoryPriority(2)).build(),
 				Category.builder().id(categoryId3.getId()).priority(new CategoryPriority(3)).build()

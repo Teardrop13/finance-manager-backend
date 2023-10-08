@@ -19,7 +19,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CategoriesReorderingService {
 
-	private final CategoryService categoryService;
+	private final CategoryRetrievingService categoryRetrievingService;
+	private final CategorySavingService categorySavingService;
 	private final CategoriesReorderingValidator validator;
 
 	@Transactional
@@ -29,21 +30,21 @@ public class CategoriesReorderingService {
 		}
 
 		for (ReorderCategoryCommand command : reorderCategoriesCommand.reorderCategoryCommands()) {
-			Category category = categoryService.getById(command.id())
+			Category category = categoryRetrievingService.getById(command.id())
 					.orElseThrow(() -> new RuntimeException("Category with id %d does not exist".formatted(command.id().getId())));
 			category.setPriority(command.priority());
-			categoryService.save(category);
+			categorySavingService.save(category);
 		}
 	}
 
 	@Transactional
 	public void reorder(UserId userId, FinancialRecordType type) {
-		List<Category> categories = categoryService.getNotDeletedByUserAndType(userId, type);
+		List<Category> categories = categoryRetrievingService.getNotDeletedByUserAndType(userId, type);
 
 		for (int i = 0; i < categories.size(); i++) {
 			Category category = categories.get(i);
 			category.setPriority(new CategoryPriority(i + 1));
-			categoryService.save(category);
+			categorySavingService.save(category);
 		}
 
 		log.info("Categories reordered for userId={}", userId.getId());

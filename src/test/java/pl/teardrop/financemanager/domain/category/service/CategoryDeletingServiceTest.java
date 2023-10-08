@@ -24,7 +24,9 @@ import static org.mockito.Mockito.when;
 class CategoryDeletingServiceTest {
 
 	@Mock
-	private CategoryService categoryService;
+	private CategoryRetrievingService categoryRetrievingService;
+	@Mock
+	private CategorySavingService categorySavingService;
 	@Mock
 	private CategoriesReorderingService categoriesReorderingService;
 	private CategoryDeletingService categoryDeletingService;
@@ -33,7 +35,7 @@ class CategoryDeletingServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		categoryDeletingService = new CategoryDeletingService(categoryService, categoriesReorderingService);
+		categoryDeletingService = new CategoryDeletingService(categoryRetrievingService, categorySavingService, categoriesReorderingService);
 	}
 
 	@Test
@@ -43,7 +45,7 @@ class CategoryDeletingServiceTest {
 
 		ArgumentCaptor<Category> argument = ArgumentCaptor.forClass(Category.class);
 
-		when(categoryService.getById(categoryId))
+		when(categoryRetrievingService.getById(categoryId))
 				.thenReturn(Optional.of(
 						Category.builder()
 								.id(categoryId.getId())
@@ -53,11 +55,11 @@ class CategoryDeletingServiceTest {
 								.build()
 				));
 
-		when(categoryService.save(any(Category.class))).thenAnswer(returnsFirstArg());
+		when(categorySavingService.save(any(Category.class))).thenAnswer(returnsFirstArg());
 
 		categoryDeletingService.delete(categoryId);
 
-		verify(categoryService, times(1)).save(argument.capture());
+		verify(categorySavingService, times(1)).save(argument.capture());
 		verify(categoriesReorderingService, times(1)).reorder(any(UserId.class), any(FinancialRecordType.class));
 		assertTrue(argument.getValue().isDeleted());
 	}

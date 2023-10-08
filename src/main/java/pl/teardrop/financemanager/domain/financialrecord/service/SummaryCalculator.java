@@ -9,7 +9,7 @@ import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
-import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.CategoryRetrievingService;
 import pl.teardrop.financemanager.domain.financialrecord.exception.AccountingPeriodNotFoundException;
 import pl.teardrop.financemanager.domain.financialrecord.model.AccountingPeriodSummary;
 import pl.teardrop.financemanager.domain.financialrecord.model.CategorySummary;
@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 public class SummaryCalculator {
 
 	private final FinancialRecordService financialRecordService;
-	private final CategoryService categoryService;
+	private final CategoryRetrievingService categoryRetrievingService;
 	private final AccountingPeriodService accountingPeriodService;
 
 	@PreAuthorize("hasPermission(#accountingPeriodId, 'AccountingPeriod', 'read')")
 	public List<CategorySummary> getSummaryByCategory(UserId userId, AccountingPeriodId accountingPeriodId, FinancialRecordType type) {
-		Map<CategoryId, Category> categoriesById = categoryService.getByUserAndType(userId, type).stream().collect(Collectors.toMap(Category::categoryId, Function.identity()));
+		Map<CategoryId, Category> categoriesById = categoryRetrievingService.getByUserAndType(userId, type).stream().collect(Collectors.toMap(Category::categoryId, Function.identity()));
 
 		return new ArrayList<>(financialRecordService.getByPeriodIdAndType(accountingPeriodId, type).stream()
 									   .map(r -> new CategorySummary(r.getAmount(), categoriesById.get(r.getCategoryId())))

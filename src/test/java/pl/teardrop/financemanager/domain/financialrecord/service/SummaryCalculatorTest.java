@@ -12,7 +12,7 @@ import pl.teardrop.financemanager.domain.accountingperiod.model.AccountingPeriod
 import pl.teardrop.financemanager.domain.accountingperiod.service.AccountingPeriodService;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
-import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.CategoryRetrievingService;
 import pl.teardrop.financemanager.domain.financialrecord.exception.AccountingPeriodNotFoundException;
 import pl.teardrop.financemanager.domain.financialrecord.model.AccountingPeriodSummary;
 import pl.teardrop.financemanager.domain.financialrecord.model.CategorySummary;
@@ -31,14 +31,14 @@ class SummaryCalculatorTest {
 	@Mock
 	private FinancialRecordService financialRecordService;
 	@Mock
-	private CategoryService categoryService;
+	private CategoryRetrievingService categoryRetrievingService;
 	@Mock
 	private AccountingPeriodService accountingPeriodService;
 	private SummaryCalculator summaryCalculator;
 
 	@BeforeEach
 	void setUp() {
-		summaryCalculator = new SummaryCalculator(financialRecordService, categoryService, accountingPeriodService);
+		summaryCalculator = new SummaryCalculator(financialRecordService, categoryRetrievingService, accountingPeriodService);
 	}
 
 	@Test
@@ -63,7 +63,7 @@ class SummaryCalculatorTest {
 				.name("Health")
 				.build();
 
-		when(categoryService.getByUserAndType(userId, FinancialRecordType.EXPENSE))
+		when(categoryRetrievingService.getByUserAndType(userId, FinancialRecordType.EXPENSE))
 				.thenReturn(List.of(categoryHouse, categoryMedia, categoryHealth));
 
 		when(financialRecordService.getByPeriodIdAndType(periodId, FinancialRecordType.EXPENSE))

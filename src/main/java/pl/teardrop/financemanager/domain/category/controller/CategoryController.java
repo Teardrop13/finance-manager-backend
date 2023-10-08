@@ -27,10 +27,12 @@ import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundExce
 import pl.teardrop.financemanager.domain.category.exception.InvalidReorderCategoryCommandException;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
+import pl.teardrop.financemanager.domain.category.service.AddingCategoryService;
 import pl.teardrop.financemanager.domain.category.service.CategoriesReorderingService;
 import pl.teardrop.financemanager.domain.category.service.CategoryDeletingService;
 import pl.teardrop.financemanager.domain.category.service.CategoryMapper;
-import pl.teardrop.financemanager.domain.category.service.CategoryService;
+import pl.teardrop.financemanager.domain.category.service.CategoryRetrievingService;
+import pl.teardrop.financemanager.domain.category.service.CategorySavingService;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
 import java.util.List;
@@ -42,16 +44,18 @@ import java.util.Optional;
 @Slf4j
 public class CategoryController {
 
-	private final CategoryService categoryService;
+	private final CategoryRetrievingService categoryRetrievingService;
 	private final CategoryDeletingService categoryDeletingService;
 	private final CategoryMapper categoryMapper;
 	private final CategoriesReorderingService categoriesReorderingService;
+	private final CategorySavingService categorySavingService;
+	private final AddingCategoryService addingCategoryService;
 
 	@GetMapping("/{type}")
 	public ResponseEntity<Object> getCategories(@PathVariable("type") FinancialRecordType type) {
 		UserId userId = UserUtils.currentUserId();
 
-		List<Category> categories = categoryService.getNotDeletedByUserAndType(userId, type);
+		List<Category> categories = categoryRetrievingService.getNotDeletedByUserAndType(userId, type);
 		List<CategoryDTO> categoriesDTO = categories.stream()
 				.map(categoryMapper::toDTO)
 				.toList();
@@ -65,7 +69,7 @@ public class CategoryController {
 				.toList();
 		try {
 			for (UpdateCategoryCommand command : updateCommands) {
-				categoryService.update(command);
+				categorySavingService.update(command);
 			}
 		} catch (CategoryNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
@@ -93,7 +97,7 @@ public class CategoryController {
 		AddCategoryCommand command = new AddCategoryCommand(userId, request);
 
 		try {
-			Category category = categoryService.create(command);
+			Category category = addingCategoryService.add(command);
 			return ResponseEntity.ok(categoryMapper.toDTO(category));
 		} catch (CategoryExistException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
@@ -102,7 +106,7 @@ public class CategoryController {
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> delete(@PathVariable long id) {
-		Optional<Category> categoryOpt = categoryService.getById(new CategoryId(id));
+		Optional<Category> categoryOpt = categoryRetrievingService.getById(new CategoryId(id));
 
 		if (categoryOpt.isPresent()) {
 			categoryDeletingService.delete(categoryOpt.get().categoryId());

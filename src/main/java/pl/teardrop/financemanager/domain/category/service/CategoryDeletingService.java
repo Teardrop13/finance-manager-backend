@@ -11,14 +11,15 @@ import pl.teardrop.financemanager.domain.category.model.CategoryId;
 @AllArgsConstructor
 public class CategoryDeletingService {
 
-	private final CategoryService categoryService;
+	private final CategoryRetrievingService categoryRetrievingService;
+	private final CategorySavingService categorySavingService;
 	private final CategoriesReorderingService categoriesReorderingService;
 
 	@PreAuthorize("hasPermission(#categoryId, 'Category', 'delete')")
 	public void delete(CategoryId categoryId) {
-		categoryService.getById(categoryId).ifPresent(category -> {
+		categoryRetrievingService.getById(categoryId).ifPresent(category -> {
 			category.setDeleted(true);
-			categoryService.save(category);
+			categorySavingService.save(category);
 			log.info("Category marked deleted id={}, userId={}", category.getId(), category.getUserId().getId());
 			categoriesReorderingService.reorder(category.getUserId(), category.getType());
 		});

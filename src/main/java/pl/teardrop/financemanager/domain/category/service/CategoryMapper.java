@@ -11,7 +11,7 @@ public class CategoryMapper {
 
 	public CategoryDTO toDTO(Category category) {
 		return new CategoryDTO(category.getId(),
-							   category.getPriority(),
+							   category.getPriority().getValue(),
 							   category.getName());
 	}
 }

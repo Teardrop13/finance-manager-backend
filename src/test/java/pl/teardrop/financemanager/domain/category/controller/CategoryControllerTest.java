@@ -22,6 +22,9 @@ import pl.teardrop.financemanager.domain.category.dto.UpdateCategoryCommand;
 import pl.teardrop.financemanager.domain.category.dto.UpdateCategoryRequest;
 import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.category.model.Category;
+import pl.teardrop.financemanager.domain.category.model.CategoryPriority;
+import pl.teardrop.financemanager.domain.category.service.CategoriesReorderingService;
+import pl.teardrop.financemanager.domain.category.service.CategoryDeletingService;
 import pl.teardrop.financemanager.domain.category.service.CategoryMapper;
 import pl.teardrop.financemanager.domain.category.service.CategoryService;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
@@ -50,7 +53,11 @@ class CategoryControllerTest {
 	@MockBean
 	private CategoryService categoryService;
 	@MockBean
+	private CategoryDeletingService categoryDeletingService;
+	@MockBean
 	private CategoryMapper categoryMapper;
+	@MockBean
+	private CategoriesReorderingService categoriesReorderingService;
 
 	private final UserId USER_ID = new UserId(1L);
 
@@ -65,7 +72,7 @@ class CategoryControllerTest {
 		final FinancialRecordType type = FinancialRecordType.INCOME;
 		final String categoryName = "salary";
 		final long categoryId = 1;
-		final Integer categoryPriority = 1;
+		final CategoryPriority categoryPriority = new CategoryPriority(1);
 
 		doAnswer(InvocationOnMock::callRealMethod).when(categoryMapper).toDTO(any(Category.class));
 
@@ -82,7 +89,7 @@ class CategoryControllerTest {
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$", hasSize(1)))
 				.andExpect(jsonPath("$[0].id", is((int) categoryId)))
-				.andExpect(jsonPath("$[0].priority", is(categoryPriority)))
+				.andExpect(jsonPath("$[0].priority", is(categoryPriority.getValue())))
 				.andExpect(jsonPath("$[0].name", is(categoryName)));
 	}
 
@@ -116,12 +123,12 @@ class CategoryControllerTest {
 
 		UpdateCategoryCommand command1 = capturedCommands.get(0);
 		assertEquals(updateCategoryRequest1.id(), command1.id().getId());
-		assertEquals(updateCategoryRequest1.priority(), command1.priority());
+		assertEquals(updateCategoryRequest1.priority(), command1.priority().getValue());
 		assertEquals(updateCategoryRequest1.name(), command1.name());
 
 		UpdateCategoryCommand command2 = capturedCommands.get(1);
 		assertEquals(updateCategoryRequest2.id(), command2.id().getId());
-		assertEquals(updateCategoryRequest2.priority(), command2.priority());
+		assertEquals(updateCategoryRequest2.priority(), command2.priority().getValue());
 		assertEquals(updateCategoryRequest2.name(), command2.name());
 	}
 

@@ -40,18 +40,16 @@ public class Category implements FinancialManagerEntity {
 	@AttributeOverride(name = "id", column = @Column(name = "USER_ID", nullable = false))
 	private UserId userId;
 
-	@JsonProperty("priority")
-	@Column(name = "PRIORITY", nullable = false)
-	private Integer priority;
+	@Embedded
+	@AttributeOverride(name = "value", column = @Column(name = "PRIORITY", nullable = false))
+	private CategoryPriority priority;
 
-	@JsonProperty("name")
 	@Column(name = "NAME", nullable = false)
 	private String name;
 
 	@Column(name = "DELETED", nullable = false)
 	private boolean deleted;
 
-	@JsonProperty("type")
 	@Column(name = "TYPE", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private FinancialRecordType type;

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,12 +18,17 @@ import pl.teardrop.authentication.user.service.UserUtils;
 import pl.teardrop.financemanager.domain.category.dto.AddCategoryCommand;
 import pl.teardrop.financemanager.domain.category.dto.AddCategoryRequest;
 import pl.teardrop.financemanager.domain.category.dto.CategoryDTO;
+import pl.teardrop.financemanager.domain.category.dto.ReorderCategoriesCommand;
+import pl.teardrop.financemanager.domain.category.dto.ReorderCategoriesRequest;
 import pl.teardrop.financemanager.domain.category.dto.UpdateCategoriesRequest;
 import pl.teardrop.financemanager.domain.category.dto.UpdateCategoryCommand;
 import pl.teardrop.financemanager.domain.category.exception.CategoryExistException;
 import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
+import pl.teardrop.financemanager.domain.category.exception.InvalidReorderCategoryCommandException;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
+import pl.teardrop.financemanager.domain.category.service.CategoriesReorderingService;
+import pl.teardrop.financemanager.domain.category.service.CategoryDeletingService;
 import pl.teardrop.financemanager.domain.category.service.CategoryMapper;
 import pl.teardrop.financemanager.domain.category.service.CategoryService;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
@@ -37,22 +43,19 @@ import java.util.Optional;
 public class CategoryController {
 
 	private final CategoryService categoryService;
+	private final CategoryDeletingService categoryDeletingService;
 	private final CategoryMapper categoryMapper;
+	private final CategoriesReorderingService categoriesReorderingService;
 
 	@GetMapping("/{type}")
-	public ResponseEntity<Object> getCategories(@PathVariable("type") String typeTextValue) {
+	public ResponseEntity<Object> getCategories(@PathVariable("type") FinancialRecordType type) {
 		UserId userId = UserUtils.currentUserId();
 
-		try {
-			FinancialRecordType type = FinancialRecordType.getByTextValue(typeTextValue);
-			List<Category> categories = categoryService.getNotDeletedByUserAndType(userId, type);
-			List<CategoryDTO> categoriesDTO = categories.stream()
-					.map(categoryMapper::toDTO)
-					.toList();
-			return ResponseEntity.ok(categoriesDTO);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
+		List<Category> categories = categoryService.getNotDeletedByUserAndType(userId, type);
+		List<CategoryDTO> categoriesDTO = categories.stream()
+				.map(categoryMapper::toDTO)
+				.toList();
+		return ResponseEntity.ok(categoriesDTO);
 	}
 
 	@PutMapping
@@ -68,6 +71,19 @@ public class CategoryController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
 		}
 		return ResponseEntity.noContent().build();
+	}
+
+	@PatchMapping("/{type}/reorder")
+	public ResponseEntity<Object> reorderCategories(@PathVariable("type") FinancialRecordType type,
+													@RequestBody ReorderCategoriesRequest request) {
+		UserId userId = UserUtils.currentUserId();
+		try {
+			categoriesReorderingService.reorder(new ReorderCategoriesCommand(userId, type, request));
+			return ResponseEntity.noContent().build();
+		} catch (InvalidReorderCategoryCommandException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+
 	}
 
 	@PostMapping
@@ -89,7 +105,7 @@ public class CategoryController {
 		Optional<Category> categoryOpt = categoryService.getById(new CategoryId(id));
 
 		if (categoryOpt.isPresent()) {
-			categoryService.delete(categoryOpt.get().categoryId());
+			categoryDeletingService.delete(categoryOpt.get().categoryId());
 			return ResponseEntity.ok().build();
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category id=%s not found.".formatted(id));

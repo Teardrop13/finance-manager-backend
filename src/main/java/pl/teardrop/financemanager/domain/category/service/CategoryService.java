@@ -11,6 +11,7 @@ import pl.teardrop.financemanager.domain.category.exception.CategoryExistExcepti
 import pl.teardrop.financemanager.domain.category.exception.CategoryNotFoundException;
 import pl.teardrop.financemanager.domain.category.model.Category;
 import pl.teardrop.financemanager.domain.category.model.CategoryId;
+import pl.teardrop.financemanager.domain.category.model.CategoryPriority;
 import pl.teardrop.financemanager.domain.category.repository.CategoryRepository;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
@@ -59,9 +60,9 @@ public class CategoryService {
 			if (existingCategory.isDeleted()) {
 				log.info("Category id={} was deleted before, setting deleted=false", existingCategory.getId());
 
-				Integer priority = getLast(existingCategory.getUserId(), existingCategory.getType())
-						.map(category -> category.getPriority() + 1)
-						.orElse(1);
+				CategoryPriority priority = getLast(existingCategory.getUserId(), existingCategory.getType())
+						.map(category -> category.getPriority().incremented())
+						.orElse(CategoryPriority.ONE);
 
 				existingCategory.setDeleted(false);
 				existingCategory.setName(command.name());
@@ -72,9 +73,9 @@ public class CategoryService {
 				throw new CategoryExistException("Category with name \"%s\" exists".formatted(command.name()));
 			}
 		} else {
-			Integer priority = getLast(command.userId(), command.type())
-					.map(category -> category.getPriority() + 1)
-					.orElse(1);
+			CategoryPriority priority = getLast(command.userId(), command.type())
+					.map(category -> category.getPriority().incremented())
+					.orElse(CategoryPriority.ONE);
 
 			Category category = Category.builder()
 					.name(command.name())
@@ -92,26 +93,6 @@ public class CategoryService {
 		Category savedCategory = categoryRepository.save(category);
 		log.info("Saved category id={}, userId={}", savedCategory.getId(), savedCategory.getUserId().getId());
 		return savedCategory;
-	}
-
-	@PreAuthorize("hasPermission(#categoryId, 'Category', 'delete')")
-	public void delete(CategoryId categoryId) {
-		getById(categoryId).ifPresent(category -> {
-			category.setDeleted(true);
-			save(category);
-			log.info("Category marked deleted id={}, userId={}", category.getId(), category.getUserId().getId());
-			reorder(category.getUserId(), category.getType());
-		});
-	}
-
-	public void reorder(UserId userId, FinancialRecordType type) {
-		List<Category> categories = getNotDeletedByUserAndType(userId, type);
-		for (int i = 0; i < categories.size(); i++) {
-			Category category = categories.get(i);
-			category.setPriority(i + 1);
-			save(category);
-		}
-		log.info("Categories reordered for userId={}", userId.getId());
 	}
 
 	@PreAuthorize("hasPermission(#command.id, 'Category', 'write')")

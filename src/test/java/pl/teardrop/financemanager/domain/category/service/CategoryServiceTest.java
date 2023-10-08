@@ -3,14 +3,13 @@ package pl.teardrop.financemanager.domain.category.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.teardrop.authentication.user.domain.UserId;
 import pl.teardrop.financemanager.domain.category.dto.AddCategoryCommand;
 import pl.teardrop.financemanager.domain.category.exception.CategoryExistException;
 import pl.teardrop.financemanager.domain.category.model.Category;
-import pl.teardrop.financemanager.domain.category.model.CategoryId;
+import pl.teardrop.financemanager.domain.category.model.CategoryPriority;
 import pl.teardrop.financemanager.domain.category.repository.CategoryRepository;
 import pl.teardrop.financemanager.domain.financialrecord.model.FinancialRecordType;
 
@@ -25,11 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,19 +50,19 @@ class CategoryServiceTest {
 		CategoryService categoryServiceMock = spy(categoryService);
 
 		doReturn(List.of(Category.builder()
-								 .priority(1)
+								 .priority(new CategoryPriority(1))
 								 .deleted(false)
 								 .build(),
 
 						 Category.builder()
-								 .priority(2)
+								 .priority(new CategoryPriority(2))
 								 .deleted(false)
 								 .build())
 		).when(categoryServiceMock).getNotDeletedByUserAndType(USER_ID, type);
 
 		Optional<Category> categoryOpt = categoryServiceMock.getLast(USER_ID, type);
 		assertTrue(categoryOpt.isPresent());
-		assertEquals(2, categoryOpt.get().getPriority());
+		assertEquals(new CategoryPriority(2), categoryOpt.get().getPriority());
 	}
 
 	@Test
@@ -91,22 +87,22 @@ class CategoryServiceTest {
 		when(categoryRepository.findByUserIdAndTypeOrderByPriority(USER_ID, type))
 				.thenReturn(List.of(
 						Category.builder()
-								.priority(1)
+								.priority(new CategoryPriority(1))
 								.deleted(false)
 								.build(),
 
 						Category.builder()
-								.priority(2)
+								.priority(new CategoryPriority(2))
 								.deleted(true)
 								.build(),
 
 						Category.builder()
-								.priority(2)
+								.priority(new CategoryPriority(2))
 								.deleted(false)
 								.build(),
 
 						Category.builder()
-								.priority(3)
+								.priority(new CategoryPriority(3))
 								.deleted(false)
 								.build()
 				));
@@ -121,8 +117,8 @@ class CategoryServiceTest {
 
 	@Test
 	void create_whenCategoryWithSuchNameIsNotPresent() throws CategoryExistException {
-		final int lastCategoryPriority = 2;
-		final int expectedPriority = lastCategoryPriority + 1;
+		final CategoryPriority lastCategoryPriority = new CategoryPriority(2);
+		final CategoryPriority expectedPriority = lastCategoryPriority.incremented();
 		final AddCategoryCommand addCategoryCommand = new AddCategoryCommand(USER_ID,
 																			 "House",
 																			 FinancialRecordType.EXPENSE);
@@ -169,8 +165,8 @@ class CategoryServiceTest {
 
 	@Test
 	void create_whenCategoryWithSuchNameIsPresentButDeleted() throws CategoryExistException {
-		final int lastCategoryPriority = 2;
-		final int expectedPriority = lastCategoryPriority + 1;
+		final CategoryPriority lastCategoryPriority = new CategoryPriority(2);
+		final CategoryPriority expectedPriority = lastCategoryPriority.incremented();
 
 		final AddCategoryCommand addCategoryCommand = new AddCategoryCommand(USER_ID,
 																			 "House",
@@ -208,7 +204,7 @@ class CategoryServiceTest {
 
 	@Test
 	void create_whenThereIsNoOtherCategories() throws CategoryExistException {
-		final int expectedPriority = 1;
+		final CategoryPriority expectedPriority = new CategoryPriority(1);
 		final AddCategoryCommand addCategoryCommand = new AddCategoryCommand(USER_ID,
 																			 "House",
 																			 FinancialRecordType.EXPENSE);
@@ -232,66 +228,5 @@ class CategoryServiceTest {
 
 		assertEquals(addCategoryCommand.name(), addedCategory.getName());
 		assertEquals(expectedPriority, addedCategory.getPriority());
-	}
-
-	@Test
-	void delete() {
-		final FinancialRecordType type = FinancialRecordType.INCOME;
-		final CategoryId categoryId = new CategoryId(1L);
-
-		CategoryService categoryServiceMock = spy(categoryService);
-		ArgumentCaptor<Category> argument = ArgumentCaptor.forClass(Category.class);
-
-		when(categoryServiceMock.getById(categoryId))
-				.thenReturn(Optional.of(
-						Category.builder()
-								.id(categoryId.getId())
-								.deleted(false)
-								.userId(USER_ID)
-								.type(type)
-								.build()
-				));
-
-		doAnswer(returnsFirstArg()).when(categoryServiceMock).save(any(Category.class));
-		doNothing().when(categoryServiceMock).reorder(any(UserId.class), any(FinancialRecordType.class));
-
-		categoryServiceMock.delete(categoryId);
-
-		verify(categoryServiceMock, times(1)).save(argument.capture());
-		verify(categoryServiceMock, times(1)).reorder(any(UserId.class), any(FinancialRecordType.class));
-		assertTrue(argument.getValue().isDeleted());
-	}
-
-	@Test
-	void reorder_whenOnePriorityIsMissing() {
-		final FinancialRecordType type = FinancialRecordType.INCOME;
-
-		CategoryService categoryServiceMock = spy(categoryService);
-		ArgumentCaptor<Category> argument = ArgumentCaptor.forClass(Category.class);
-
-		when(categoryServiceMock.getNotDeletedByUserAndType(USER_ID, type))
-				.thenReturn(List.of(
-						Category.builder()
-								.priority(1)
-								.deleted(false)
-								.build(),
-
-						Category.builder()
-								.priority(3)
-								.deleted(false)
-								.build()
-				));
-
-		doAnswer(returnsFirstArg())
-				.when(categoryServiceMock).save(any(Category.class));
-
-		categoryServiceMock.reorder(USER_ID, type);
-
-		verify(categoryServiceMock, times(2)).save(argument.capture());
-
-		List<Category> savedCategories = argument.getAllValues();
-		assertEquals(2, savedCategories.size());
-		assertEquals(1, savedCategories.get(0).getPriority());
-		assertEquals(2, savedCategories.get(1).getPriority());
 	}
 }

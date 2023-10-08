@@ -9,4 +9,7 @@ public class FinancialManagerException extends Exception {
 	public FinancialManagerException(String message, Throwable cause) {
 		super(message, cause);
 	}
+
+	public FinancialManagerException() {
+	}
 }

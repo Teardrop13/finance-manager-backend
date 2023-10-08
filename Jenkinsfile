@@ -6,7 +6,7 @@ pipeline {
     }
 
     triggers {
-        upstream 'authentication, '
+        upstream 'jwt-authentication, '
     }
 
     stages {

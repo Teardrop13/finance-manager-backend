@@ -74,7 +74,7 @@ public class FinancialRecordService {
 		return save(financialRecord);
 	}
 
-	@PreAuthorize("hasPermission(#financialRecordId, 'FinancialRecord', 'write')")
+	@PreAuthorize("hasPermission(#updateCommand.recordId(), 'FinancialRecord', 'write')")
 	public FinancialRecord update(UpdateFinancialRecordCommand updateCommand) throws FinancialRecordNotFoundException, CategoryNotFoundException {
 		FinancialRecord financialRecord = getById(updateCommand.recordId())
 				.orElseThrow(() -> new FinancialRecordNotFoundException("Record with id=%d not found".formatted(updateCommand.recordId().getId())));

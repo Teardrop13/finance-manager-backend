@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Lazy;
 import pl.teardrop.authentication.user.service.PasswordEncryptor;
 import pl.teardrop.authentication.user.repository.UserRepository;
 import pl.teardrop.authentication.user.service.UserService;
-import pl.teardrop.financemanager.domain.category.service.DefaultCategoriesService;
+import pl.teardrop.financemanager.domain.category.service.AddingDefaultCategoriesService;
 
 @Configuration
 public class AuthenticationConfiguration {
@@ -14,8 +14,8 @@ public class AuthenticationConfiguration {
 	@Bean
 	public UserService userService(UserRepository userRepository,
 								   @Lazy PasswordEncryptor passwordEncryptor,
-								   DefaultCategoriesService defaultCategoriesService) {
-		return new FinancialManagerUserService(userRepository, passwordEncryptor, defaultCategoriesService);
+								   AddingDefaultCategoriesService addingDefaultCategoriesService) {
+		return new FinancialManagerUserService(userRepository, passwordEncryptor, addingDefaultCategoriesService);
 	}
 
 }

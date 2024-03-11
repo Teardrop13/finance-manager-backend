@@ -10,11 +10,11 @@ import pl.teardrop.financemanager.domain.category.repository.CategoryRepository;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class DefaultCategoriesService {
+public class AddingDefaultCategoriesService {
 
 	private final CategoryRepository categoryRepository;
 
-	public void addDefaults(UserId userId) {
+	public void add(UserId userId) {
 		new JsonUtil().loadDefaultCategories().forEach(category -> {
 			category.setUserId(userId);
 			categoryRepository.save(category);

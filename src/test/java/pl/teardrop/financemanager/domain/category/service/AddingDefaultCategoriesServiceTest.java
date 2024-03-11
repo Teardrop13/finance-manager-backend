@@ -18,16 +18,16 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultCategoriesServiceTest {
+class AddingDefaultCategoriesServiceTest {
 
 	@Mock
 	private CategoryRepository categoryRepository;
 
-	private DefaultCategoriesService defaultCategoriesService;
+	private AddingDefaultCategoriesService addingDefaultCategoriesService;
 
 	@BeforeEach
 	void setUp() {
-		defaultCategoriesService = new DefaultCategoriesService(categoryRepository);
+		addingDefaultCategoriesService = new AddingDefaultCategoriesService(categoryRepository);
 	}
 
 	@Test
@@ -35,7 +35,7 @@ class DefaultCategoriesServiceTest {
 		UserId userId = new UserId(1L);
 		ArgumentCaptor<Category> commandCaptor = ArgumentCaptor.forClass(Category.class);
 
-		defaultCategoriesService.addDefaults(userId);
+		addingDefaultCategoriesService.add(userId);
 
 		verify(categoryRepository, atLeastOnce()).save(commandCaptor.capture());
 
